@@ -11,8 +11,8 @@ SPACE [ \t\n]+
 BLOCKCOMMENT_START \/\*
 BLOCKCOMMENT_END "*"+"/"
 COMMENT \/\/.*$
-HEX 0[xX][1-9A-Fa-f][0-9A-Fa-f]*|0x0
-OCT 0[1-7][0-7]*|00
+HEX 0[xX][0-9A-Fa-f]+
+OCT 0[0-7]+
 INT [1-9][0-9]*|0
 FLOAT [0-9]+\.[0-9]+|(([0-9]+\.[0-9]+)|([0-9]+\.)|(\.[0-9]+))[Ee][+-]?[0-9]+
 ID [A-Za-z_][A-Za-z0-9_]*
