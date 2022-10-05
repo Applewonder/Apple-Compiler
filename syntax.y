@@ -163,6 +163,7 @@ Exp:
 |   HEX {$$ = new_node("Exp", 1, $1);}
 |   FLOAT {$$ = new_node("Exp", 1, $1);}
 |   Exp LB Exp error RB
+|   Exp ASSIGNOP error Exp
 ;
 
 Args: 

@@ -7,7 +7,7 @@ extern int yydebug;
 int error_flag = 0;
 
 int main(int argc, char *argv[]) {
-    //yydebug = 1;
+    yydebug = 1;
     /*
         TODO: Arg Parsing
     */
