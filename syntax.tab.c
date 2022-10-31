@@ -1480,7 +1480,7 @@ yyreduce:
     {
   case 2:
 #line 42 "./syntax.y"
-                    {root = new_node("Program", 1, (yyvsp[0].node)); (yyval.node) = root; if (!error_flag) print_ast((yyval.node), 0);}
+                    {root = new_node("Program", 1, (yyvsp[0].node)); (yyval.node) = root;}
 #line 1485 "./syntax.tab.c"
     break;
 

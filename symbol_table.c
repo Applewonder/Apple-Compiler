@@ -159,7 +159,7 @@ Type check_exp_type(struct ast* aim) {
         Type r_ty = check_exp_type(fir->right->right);
         if (l_ty == NULL) return NULL;
         if (r_ty == NULL) return NULL;
-        if (l_ty->kind != r_ty->kind) {
+        if (!equiv_type(l_ty, r_ty)) {
             printf("Error type 5 at Line %d: hh\n", fir->line_num);
             return NULL;
         }
@@ -189,7 +189,7 @@ Type check_exp_type(struct ast* aim) {
         if (l_ty == NULL) return NULL;
         if (r_ty == NULL) return NULL;
         
-        if (l_ty->kind != r_ty->kind) {
+        if (!equiv_type(l_ty, r_ty)) {
             printf("Error type 7 at Line %d: hh\n", fir->line_num);
             return NULL;
         } else if (l_ty->kind != T_INT && l_ty->kind != T_FLOAT) {
