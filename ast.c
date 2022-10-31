@@ -4,6 +4,8 @@
 #include "ast.h"
 #include <assert.h>
 
+struct ast* root = NULL;
+
 struct ast* new_node(char* name, int num, ...) {
     va_list valist;
     struct ast* fa = (struct ast*)malloc(sizeof(struct ast));
@@ -29,7 +31,7 @@ struct ast* new_node(char* name, int num, ...) {
         } else if (!strcmp(fa -> token_name, "FLOAT")) {
             fa -> fval = atof(yytext);
         } else if (line_n == -1) {
-
+            
         } else {
             char* tmp = (char*)malloc(sizeof(char*) * 10);
             strcpy(tmp, yytext);

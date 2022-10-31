@@ -2,7 +2,7 @@
 # ************ 遇到不明白的地方请google以及阅读手册 *************
 
 # 编译器设定和编译选项
-CC = gcc-7
+CC = gcc
 FLEX = flex
 BISON = bison
 CFLAGS = -std=c99
@@ -18,8 +18,8 @@ LFO = $(LFC:.c=.o)
 YFO = $(YFC:.c=.o)
 
 parser: syntax $(filter-out $(LFO),$(OBJS))
-	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl 
-	
+	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly
+
 syntax: lexical syntax-c
 	$(CC) -c $(YFC) -o $(YFO)
 
@@ -33,22 +33,10 @@ syntax-c: $(YFILE)
 
 # 定义的一些伪目标
 .PHONY: clean test
-tests:
-	./parser ../../tests/test1.c
-	./parser ../../tests/test2.c
-	./parser ../../tests/test3.c
-	./parser ../../tests/test4.c
-	./parser ../../tests/test5.c
-	./parser ../../tests/test6.c
-	./parser ../../tests/test7.c
-	./parser ../../tests/test8.c
-	./parser ../../tests/test9.c
-	./parser ../../tests/test10.c
 test:
-	./parser ../test.c
+	./parser ../Test/test1.cmm
 clean:
 	rm -f parser lex.yy.c syntax.tab.c syntax.tab.h syntax.output
 	rm -f $(OBJS) $(OBJS:.o=.d)
 	rm -f $(LFC) $(YFC) $(YFC:.c=.h)
 	rm -f *~
-

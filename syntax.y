@@ -7,6 +7,7 @@
     extern int yyparse();
     extern int yylineno;   
     extern int error_flag; 
+    extern struct ast* root;
     void yyerror(const char *);
 %}
 
@@ -38,7 +39,7 @@
 
 
 %%
-Program: ExtDefList {$$ = new_node("Program", 1, $1); if (!error_flag) print_ast($$, 0);}
+Program: ExtDefList {root = new_node("Program", 1, $1); $$ = root; if (!error_flag) print_ast($$, 0);}
 ;
 
 ExtDefList: 

@@ -6,13 +6,17 @@
             "command": "/usr/bin/gcc-7",
             "args": [
                 "-fdiagnostics-color=always",
-                "ast.c",
+                "-g",
                 "main.c",
                 "syntax.tab.c",
-                "-lfl",
-                "-g",
+                "ast.c",
+                "data_hash.c",
+                "symbol_table.c",
+                "-ll",
+                "-ly",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-fsanitize=address"
             ],
             "options": {
                 "cwd": "${fileDirname}"

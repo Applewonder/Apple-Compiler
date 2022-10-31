@@ -1,13 +1,16 @@
 #include <stdio.h>
+#include "ast.h"
+#include "symbol_table.h"
 
 extern int yyparse();
 extern int yyrestart();
 extern int yylineno;
 extern int yydebug;
+extern struct ast* root;
 int error_flag = 0;
-
+ 
 int main(int argc, char *argv[]) {
-    yydebug = 1;
+    //yydebug = 1;
     /*
         TODO: Arg Parsing
     */
@@ -62,6 +65,7 @@ int main(int argc, char *argv[]) {
     }
     yyrestart(f);
     yyparse();
+    construct_sym_table(root, 0);
     return 0;
 }
 

@@ -92,7 +92,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 13 "./syntax.y"
+#line 14 "./syntax.y"
 
     struct ast* node;
 
