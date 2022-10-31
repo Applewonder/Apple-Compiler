@@ -70,7 +70,7 @@ FieldList Dec(struct ast* aim, Type type);
 FieldList DecList(struct ast* aim, Type type);
 FieldList Def(struct ast* aim);
 FieldList ExtDecList(struct ast* aim, Type type);
-Type FunDec(struct ast* aim, Type type);
+Type FunDec(struct ast* aim, Type type, bool is_def);
 ParamList VarList(struct ast* aim);
 ParamList ParamDec(struct ast* aim);
 void construct_sym_table(struct ast* root_, int depth);

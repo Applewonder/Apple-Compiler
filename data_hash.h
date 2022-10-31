@@ -8,7 +8,7 @@
 #include "symbol_table.h"
 
 typedef struct sym_node_* Sym_node;
-
+typedef struct chain_node_* Chain_node;
 struct sym_node_{
     Type type;
     char* name;
@@ -16,6 +16,13 @@ struct sym_node_{
     Sym_node stack_next;
 };
 
+struct chain_node_{
+    Type type;
+    char* name;
+    int line_num;
+    Chain_node next;
+    bool is_def;
+};
 
 unsigned int hash_pjw(char* name);
 int insert(Sym_node s_node);
@@ -29,6 +36,10 @@ Type structure_find(Sym_node s_node, char* name);
 bool equiv_field(FieldList a, FieldList b);
 void scratch(Type type);
 bool equiv_type(Type a, Type b);
+bool equiv_plist(ParamList plist_1, ParamList plist_2);
+bool chain_insert(Type type, char* name, int line_num);
+void give_def(Type type, char* name);
+void final_check();
 void avail_only_for_func_stack_down();
 void recover_immediatly();
 #endif

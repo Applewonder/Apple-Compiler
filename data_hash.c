@@ -5,13 +5,37 @@
 
 static Sym_node map[20000];
 
+static Chain_node f_dec;
+
 static struct {
     int top;
     Sym_node stack[10000];
 } STACK;
 
 
+
+bool equiv_plist(ParamList plist_1, ParamList plist_2) {
+    ParamList point_1 = plist_1;
+    ParamList point_2 = plist_2;
+    for (; (point_1 != NULL || point_2 != NULL);)
+    {
+        if (point_1 == NULL && point_2 != NULL) {
+            return false;
+        }
+        if (point_1 != NULL && point_2 == NULL) {
+            return false;
+        }
+        if (!equiv_type(point_1->type, point_2->type)) {
+            return false;
+        }
+        point_1 = point_1->tail;
+        point_2 = point_2->tail;
+    }
+    return true;
+}
+
 bool equiv_field(FieldList a, FieldList b) {
+    if(a == b) return true;
     FieldList point_1 = a;
     FieldList point_2 = b;
     for (; (point_1 != NULL || point_2 != NULL);)
@@ -22,11 +46,35 @@ bool equiv_field(FieldList a, FieldList b) {
         if (point_1 != NULL && point_2 == NULL) {
             return false;
         }
-        if (point_1->type->kind != point_2->type->kind) {
+        if (!equiv_type(point_1->type, point_2->type)) {
             return false;
         }
         point_1 = point_1->basic_tail;
         point_2 = point_2->basic_tail;
+    }
+    return true;
+}
+
+bool equiv_arr(Type a, Type b) {
+    if (a == b) return true;
+    Type point_1 = a;
+    Type point_2 = b;
+    for (; (point_1 != NULL || point_2 != NULL);)
+    {
+        if ((point_1->kind == point_2->kind) && (point_1->kind != T_AR)) {
+            return true;
+        }
+        if (point_1 == NULL && point_2 != NULL) {
+            return false;
+        }
+        if (point_1 != NULL && point_2 == NULL) {
+            return false;
+        }
+        if (point_1->u.array.elem->kind != point_2->u.array.elem->kind) {
+            return false;
+        }
+        point_1 = point_1->u.array.elem;
+        point_2 = point_2->u.array.elem;
     }
     return true;
 }
@@ -50,9 +98,31 @@ void scratch(Type type) {
 
 bool equiv_type(Type a, Type b) {
     //if (a == NULL || b == NULL) return false;
-    if ((a->kind == b->kind) && a->kind != T_STRU) return true; 
+    if (a == b) return true;
     if (a->kind != b->kind) return false;
-    return equiv_field(a->u.structure, b->u.structure);
+    if (a->kind == b->kind) {
+        if ((a->kind != T_STRU && a->kind != T_AR) && a->kind != T_FUNC) {
+            return true;
+        }
+        if (a->kind == T_STRU) {
+            return equiv_field(a->u.structure, b->u.structure);
+        }
+        if (a->kind == T_AR) {
+            return equiv_arr(a, b);
+        }
+        if (a->kind == T_FUNC) {
+            Type ret_a = a->u.function->ret;
+            Type ret_b = b->u.function->ret;
+            if (!equiv_type(ret_a, ret_b)) return false;
+            int param_a = a->u.function->param_num;
+            int param_b = b->u.function->param_num;
+            if (param_a != param_b) return false;
+            ParamList plist_a = a->u.function->param_list;
+            ParamList plist_b = b->u.function->param_list;
+            return equiv_plist(plist_a, plist_b);
+        }
+    } 
+    return false;
 }
 
 unsigned int hash_pjw(char* name)
@@ -163,37 +233,6 @@ unsigned int erase(Sym_node s_node) {
 }
 
 bool stack_insert(Type type, char* name) {
-    // if (is_global) {
-    //     bool is_func = false;
-    //     if (type->kind == T_FUNC) {
-    //         is_func = true;
-    //     } 
-    //     if (insert(type) == -1) return false;
-    //     Type pointer = find(type->name, is_func);
-    //     assert(pointer != NULL);
-    //     if (STACK.stack[0] == NULL) {
-    //         STACK.stack[0] = pointer;
-    //         return true;
-    //     }
-    //     pointer->stack_next =  STACK.stack[0];
-    //     STACK.stack[0] = pointer;
-    //     return true;
-    // }
-    // bool is_func = false;
-    // if (type->kind == T_FUNC) {
-    //     is_func = true;
-    // } 
-    // if (insert(type) == -1) return false;
-    // Type pointer = find(type->name, is_func);
-    // assert(pointer != NULL);
-    // int top = STACK.top;
-    // if (STACK.stack[top] == NULL) {
-    //     STACK.stack[top] = pointer;
-    //     return true;
-    // }
-    // pointer->stack_next =  STACK.stack[top];
-    // STACK.stack[top] = pointer;
-    // return true;
     Sym_node pointer = STACK.stack[STACK.top];
     if (type->kind != T_STRU) {
         for (; pointer != NULL; pointer = pointer->stack_next)
@@ -279,4 +318,61 @@ Type structure_find(Sym_node s_node, char* name) {
     return NULL;
 }
 
+bool chain_insert(Type type, char* name, int line_num) {
+    Chain_node cur = (Chain_node)malloc(sizeof(struct chain_node_));
+    cur->line_num = line_num;
+    cur->name = name;
+    cur->type = type;
+    Chain_node pointer = f_dec;
+    for (; pointer != NULL; pointer = pointer->next)
+    {
+        if (!strcmp(pointer->name, name)) {
+            if (!equiv_type(pointer->type, type)) {
+                printf("Error type 19 at Line %d: hh\n", line_num);
+                return false;
+            }
+        }
+    }
+    Sym_node f_def = find(name, true);
+    if (f_def == NULL) {
+        cur->is_def = false;
+    } else {
+        Type f_deffed = f_def->type;
+        if (!equiv_type(f_deffed, type)) {
+            printf("Error type 19 at Line %d: hh\n", line_num);
+            return false;
+        } else {
+            cur->is_def = true;
+        }
+    }
+
+    cur->next = f_dec;
+    f_dec = cur;
+
+    return true;
+}
+
+void give_def(Type type, char* name) {
+    Chain_node pointer = f_dec;
+    for (; pointer != NULL; pointer = pointer->next)
+    {
+        if (!strcmp(pointer->name, name)) {
+            if (!equiv_type(pointer->type, type)) {
+                printf("Error type 19 at Line %d: hh\n", pointer->line_num);
+            } else {
+                pointer->is_def = true;
+            }
+        }
+    }
+}
+
+void final_check() {
+    Chain_node pointer = f_dec;
+    for (; pointer != NULL; pointer = pointer->next)
+    {
+        if (!pointer->is_def) {
+            printf("Error type 18 at Line %d: hh\n", pointer->line_num);
+        }
+    }
+}
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "ast.h"
 #include "symbol_table.h"
+#include "data_hash.h"
 
 extern int yyparse();
 extern int yyrestart();
@@ -66,6 +67,7 @@ int main(int argc, char *argv[]) {
     yyrestart(f);
     yyparse();
     construct_sym_table(root, 0);
+    final_check();
     return 0;
 }
 

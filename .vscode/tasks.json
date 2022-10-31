@@ -15,8 +15,8 @@
                 "-ll",
                 "-ly",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}",
-                "-fsanitize=address"
+                "${fileDirname}/${fileBasenameNoExtension}"
+                //"-fsanitize=address"
             ],
             "options": {
                 "cwd": "${fileDirname}"

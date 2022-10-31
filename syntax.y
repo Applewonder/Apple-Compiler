@@ -39,7 +39,7 @@
 
 
 %%
-Program: ExtDefList {root = new_node("Program", 1, $1); $$ = root; if (!error_flag) print_ast($$, 0);}
+Program: ExtDefList {root = new_node("Program", 1, $1); $$ = root;}
 ;
 
 ExtDefList: 
@@ -51,6 +51,7 @@ ExtDef:
     Specifier ExtDecList SEMI {$$ = new_node("ExtDef", 3, $1, $2, $3);}
 |   Specifier SEMI  {$$ = new_node("ExtDef", 2, $1, $2);}
 |   Specifier FunDec CompSt  {$$ = new_node("ExtDef", 3, $1, $2, $3);}
+|   Specifier FunDec SEMI {$$ = new_node("ExtDef", 3, $1, $2, $3);}
 ;
 
 ExtDecList:

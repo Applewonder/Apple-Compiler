@@ -7,36 +7,19 @@ extern struct ast* root;
 
 Type funcret;
 bool enter_func = false;
-bool enter_struc = false;
-
-bool equiv_plist(ParamList plist_1, ParamList plist_2) {
-    ParamList point_1 = plist_1;
-    ParamList point_2 = plist_2;
-    for (; (point_1 != NULL || point_2 != NULL);)
-    {
-        if (point_1 == NULL && point_2 != NULL) {
-            return false;
-        }
-        if (point_1 != NULL && point_2 == NULL) {
-            return false;
-        }
-        if (point_1->type->kind != point_2->type->kind) {
-            return false;
-        }
-        point_1 = point_1->tail;
-        point_2 = point_2->tail;
-    }
-    return true;
-}
+int enter_struc = 0;
+bool in_struc;
 
 bool find_func(struct ast* fir, bool is_arg) {
     char* name = fir->name;
     Sym_node s_node = find(name, 1);
     int p_num = s_node->type->u.function->param_num;
-    if (p_num == 0) {
-        return true;
-    } else {
-        return false;
+    if (!is_arg) {
+        if (p_num == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
     if (is_arg) {
         ParamList f_list = s_node->type->u.function->param_list;
@@ -52,6 +35,8 @@ ParamList Args(struct ast* aim) {
     if (aim->left->right != NULL) {
         plist->tail = Args(aim->left->right->right);
         return plist;
+    } else {
+        plist->tail = NULL;
     }
     return plist;
 }
@@ -113,7 +98,7 @@ Type check_exp_type(struct ast* aim) {
                 printf("Error type 9 at Line %d: hh\n", fir->line_num);
                 return NULL;
             }
-            return fty->type;
+            return fty->type->u.function->ret;
         }
     } else if (!strcmp(fir -> token_name, "OCT") || !strcmp(fir -> token_name, "HEX") || !strcmp(fir -> token_name, "INT")) {
         Type i_ty = (Type)malloc(sizeof(struct Type_));
@@ -127,7 +112,7 @@ Type check_exp_type(struct ast* aim) {
         return check_exp_type(fir->right);
     } else if (!strcmp(fir->token_name, "MINUS")) {
         Type tp = check_exp_type(fir->right);
-        if (tp->kind != T_FLOAT || tp->kind != T_INT) {
+        if (tp->kind != T_FLOAT && tp->kind != T_INT) {
             printf("Error type 7 at Line %d: hh\n", fir->line_num);
             return NULL;
         }
@@ -196,6 +181,8 @@ Type check_exp_type(struct ast* aim) {
             printf("Error type 12 at Line %d: hh\n", fir->line_num);
             return NULL;
         }
+        //printf("%p\n", stu_type->u.array.elem);
+        return stu_type->u.array.elem;
     } else {
         Type l_ty = check_exp_type(fir);
         Type r_ty = check_exp_type(fir->right->right);
@@ -220,17 +207,15 @@ Type check_exp_type(struct ast* aim) {
 
 FieldList construct_array_node(struct ast* aim, Type type) {//the entry is: vard lb int rb
     if (!strcmp(aim->token_name, "ID")) {
-        Type a = (Type)malloc(sizeof(struct Type_));
-        a->kind = T_AR;
-        a->u.array.elem = type;
-        bool is_success = stack_insert(a, aim->name);
+        bool is_success = stack_insert(type, aim->name);
         if (!is_success) {
             printf("Error type 3 at Line %d: hh\n", aim->line_num);
         } 
-
         FieldList b = (FieldList)malloc(sizeof(struct FieldList_));
-        b->type = a;
+        b->type = type;
         b->name = aim->name;
+        b->tail = NULL;
+        b->basic_tail = NULL;
         return b;
     }
     Type vard = (Type)malloc(sizeof(struct Type_));
@@ -299,6 +284,7 @@ Type StructSpecifier(struct ast* aim) {
         name = OptTag(tag, type);
     } else {
         name = Tag(tag, type);
+        //printf("--------------%s\n", name);
         Sym_node snode = find(name, 0);
         if (snode == NULL) {
             printf("Error type 17 at Line %d: hh\n", aim->line_num);
@@ -309,12 +295,12 @@ Type StructSpecifier(struct ast* aim) {
     }
     if (name != NULL) {
         stack_push();
-        enter_struc = true;
+        enter_struc ++;
         struct ast* defl = tag->right->right;
         type->u.structure = DefList(defl);
         scratch(type);
         stack_pop();
-        enter_struc = false;
+        enter_struc --;
         bool is_success = stack_insert(type, name);
         if (!is_success) {
             printf("Error type 16 at Line %d: hh\n", aim->line_num);
@@ -322,10 +308,12 @@ Type StructSpecifier(struct ast* aim) {
         return type;
     } else {
         stack_push();
+        enter_struc ++;
         struct ast* defl = tag->right->right;
         type->u.structure = DefList(defl);
         scratch(type);
         stack_pop();
+        enter_struc --;
         return type;
     }
     
@@ -335,7 +323,9 @@ FieldList DefList(struct ast* aim) {
     if (aim->line_num == -1) return NULL;
     struct ast* child = aim->left;
     FieldList def = Def(child);
-    if (def == NULL) return NULL;
+    if (def == NULL) {
+        return DefList(child->right);
+    }
     def->tail = DefList(child->right);
     return def;
 }
@@ -359,9 +349,14 @@ FieldList Dec(struct ast* aim, Type type) {
     if (vdec->right == NULL) {
         return tmp;
     }
+    if (enter_struc) {
+        printf("Error type 15 at Line %d: hh\n", vdec->line_num);
+        return NULL;
+    }
     struct ast* exp = vdec->right->right;
     //TODO:check assign type exp;
     Type ty = check_exp_type(exp);
+    if (ty == NULL) return NULL;
     //if(ty->kind != tmp->kind) //TODO: you know
     if (!equiv_type(ty, tmp->type)) {
         printf("Error type 8 at Line %d: hh\n", vdec->line_num);
@@ -401,41 +396,73 @@ FieldList ExtDecList(struct ast* aim, Type type) {
     return cur;
 }
 
-Type FunDec(struct ast* aim, Type type) {
-    funcret = type;
-    Type f_type = (Type)malloc(sizeof(struct Type_));
-    
-    f_type->kind = T_FUNC;
-    f_type->u.function = (Func)malloc(sizeof(struct Func_));
-    f_type->u.function->param_num = 0;
-    f_type->u.function->ret = type;
-    struct ast* id = aim->left;
-    
-    if (!strcmp(id->right->right->token_name, "RP")) {
+Type FunDec(struct ast* aim, Type type, bool is_def) {
+    if (is_def) {
+        funcret = type;
+        Type f_type = (Type)malloc(sizeof(struct Type_));
+        
+        f_type->kind = T_FUNC;
+        f_type->u.function = (Func)malloc(sizeof(struct Func_));
+        f_type->u.function->param_num = 0;
+        f_type->u.function->ret = type;
+        struct ast* id = aim->left;
+        
+        if (!strcmp(id->right->right->token_name, "RP")) {
+            bool is_success = stack_insert(f_type, id->name);
+            if (!is_success) {
+                printf("Error type 4 at Line %d: hh\n", id->line_num);
+            } 
+            give_def(f_type, id->name);
+            return f_type;
+        }
+        struct ast* vlist = id->right->right;
+        stack_push();
+        f_type->u.function->param_list = VarList(vlist);
+        enter_func = true;
+        
+        ParamList plist = f_type->u.function->param_list;
+        
+        for (; plist != NULL; plist = plist->tail)
+        {
+            f_type->u.function->param_num ++;
+        }
+        avail_only_for_func_stack_down();
         bool is_success = stack_insert(f_type, id->name);
+        recover_immediatly();
         if (!is_success) {
             printf("Error type 4 at Line %d: hh\n", id->line_num);
         } 
+        give_def(f_type, id->name);
+        return f_type;
+    } else {
+        Type f_type = (Type)malloc(sizeof(struct Type_));
+        
+        f_type->kind = T_FUNC;
+        f_type->u.function = (Func)malloc(sizeof(struct Func_));
+        f_type->u.function->param_num = 0;
+        f_type->u.function->ret = type;
+        struct ast* id = aim->left;
+
+        if (!strcmp(id->right->right->token_name, "RP")) {
+            bool is_success = chain_insert(f_type, id->name, id->line_num);
+            return f_type;
+        }
+
+        struct ast* vlist = id->right->right;
+        stack_push();
+        f_type->u.function->param_list = VarList(vlist);
+        stack_pop();
+
+        ParamList plist = f_type->u.function->param_list;
+
+        for (; plist != NULL; plist = plist->tail)
+        {
+            f_type->u.function->param_num ++;
+        }
+        bool is_success = chain_insert(f_type, id->name, id->line_num);
         return f_type;
     }
-    struct ast* vlist = id->right->right;
-    stack_push();
-    f_type->u.function->param_list = VarList(vlist);
-    enter_func = true;
     
-    ParamList plist = f_type->u.function->param_list;
-    
-    for (; plist != NULL; plist = plist->tail)
-    {
-        f_type->u.function->param_num ++;
-    }
-    avail_only_for_func_stack_down();
-    bool is_success = stack_insert(f_type, id->name);
-    recover_immediatly();
-    if (!is_success) {
-        printf("Error type 3 at Line %d: hh\n", id->line_num);
-    } 
-    return f_type;
 }
 
 ParamList VarList(struct ast* aim) {
@@ -459,7 +486,8 @@ ParamList ParamDec(struct ast* aim) {
     FieldList vtype = VarDec(vdec, type);
     ParamList plist = (ParamList)malloc(sizeof(struct Param_));
     plist->name = vtype->name;
-    plist->type = type;
+    plist->type = vtype->type;
+    plist->tail = NULL;
     return plist;
 }
 
@@ -481,7 +509,7 @@ void Stmt(struct ast* aim) {
         Stmt(stm);
         if (stm->right != NULL) {
             struct ast* e_stm = stm->right->right;
-            Stmt(stm);
+            Stmt(e_stm);
         }
     } else {
         Type t_judge = check_exp_type(fir->right->right);
@@ -499,12 +527,13 @@ void StmtList(struct ast* aim) {
 
 void CompSt(struct ast* aim) {
     if (!enter_func) stack_push();
+    if (enter_func) enter_func = false;
     struct ast* dlist = aim->left->right;
     DefList(dlist);
     struct ast* slist = dlist->right;
     StmtList(slist);
     stack_pop();
-    if (enter_func) enter_func = false;
+    
 }
 
 void construct_sym_table(struct ast* root_, int depth) {
@@ -523,9 +552,13 @@ void construct_sym_table(struct ast* root_, int depth) {
                     if (!strcmp(judge->token_name, "ExtDecList")) {
                         ExtDecList(judge, t_spec);
                     } else {
-                        Type f_ty = FunDec(judge, t_spec);
                         struct ast* cpmst = judge->right;
-                        CompSt(cpmst); 
+                        if (!strcmp(cpmst->token_name, "SEMI")) {
+                            Type f_ty = FunDec(judge, t_spec, false);
+                        } else {
+                            Type f_ty = FunDec(judge, t_spec, true);
+                            CompSt(cpmst); 
+                        }
                     }
                 } 
             } 
