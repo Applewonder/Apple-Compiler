@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "ast.h"
-#include "symbol_table.h"
+#include "generate_ir_sym.h"
 #include "data_hash.h"
 
 extern int yyparse();
