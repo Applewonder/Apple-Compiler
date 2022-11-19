@@ -11,11 +11,13 @@
                 "syntax.tab.c",
                 "ast.c",
                 "data_hash.c",
-                "symbol_table.c",
+                "generate_ir_sym.c",
+                "generate_ir.c",
+                "ir_code.c",
                 "-ll",
                 "-ly",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "print_ir"
                 //"-fsanitize=address"
             ],
             "options": {

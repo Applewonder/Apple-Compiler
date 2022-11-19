@@ -57,7 +57,7 @@ struct Param_
 };
 
 Type check_exp_type(struct ast* aim);
-FieldList generate_ir(struct ast* aim, Type type);
+FieldList construct_array_node(struct ast* aim, Type type);
 FieldList VarDec(struct ast* aim, Type type);
 Type TYPE(struct ast* aim);
 Type STRUCT();
@@ -73,7 +73,7 @@ FieldList ExtDecList(struct ast* aim, Type type);
 Type FunDec(struct ast* aim, Type type, bool is_def);
 ParamList VarList(struct ast* aim);
 ParamList ParamDec(struct ast* aim);
-void construct_sym_table(struct ast* root_, int depth);
+void generate_ir_sym(struct ast* root_, int depth);
 void Stmt(struct ast* aim);
 void StmtList(struct ast* aim);
 void CompSt(struct ast* aim);

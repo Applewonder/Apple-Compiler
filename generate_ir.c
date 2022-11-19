@@ -9,14 +9,170 @@
 # include "ir_code.h"
 
 //TODO: Args Exp Stmt Cond  
-//TODO: VarDec TYPE STRUCT OptTag Tag StructSpecifier DefList Specifier Dec DecList Def ExtDecList FunDec VarList ParamDec StmtList CompSt
+//TODO: VarDec TYPE STRUCT OptTag Tag StructSpecifier DefList Specifier Dec DecList Def FunDec VarList ParamDec StmtList CompSt
 
 extern struct ast* root;
-
 extern InterCodes start;
+extern FILE* out_file;
 
 static int count_tmp = 0;
 static int count_label = 0;
+
+char* print_operand(Operand ope) {
+    int kind = ope->kind;
+    switch (kind)
+    {
+    case VARIABLE:
+        return ope->u.var_name;
+        break;
+    case CONSTANT:{
+        char* num = malloc(sizeof(char) * 10);
+        sprintf(num, "#%d", ope->u.value);
+        return num;
+    }
+    case ADDRESS:
+        break;
+    case LABEl:
+        return ope->u.var_name;
+        break;
+    case OP:
+        return ope->u.op;
+        break;
+    case FUNC:
+        return ope->u.f_name;
+        break;
+    case ARGUE:
+        return ope->u.arg_name;
+        break;
+    default:
+        printf("fun\n");
+        
+        break;
+    }
+    return NULL;
+}
+
+void printf_binop(int kind, char* result, char* op1, char* op2) {
+    switch (kind)
+    {
+    case ADD:{
+        fprintf(out_file, "%s := %s + %s\n", result, op1, op2);
+        break;
+    }  
+    case SUB:{
+        fprintf(out_file, "%s := %s - %s\n", result, op1, op2);
+        break;
+    }
+    case MUL:{
+        fprintf(out_file, "%s := %s * %s\n", result, op1, op2);
+        break; 
+    }
+    case DIV:{
+        fprintf(out_file, "%s := %s / %s\n", result, op1, op2);
+        break;
+    }   
+    default:
+    printf("so fun\n");
+        break;
+    }
+}
+
+void print_ir(InterCodes cur) {
+    InterCode code = cur->code;
+    while (cur != NULL) {
+        int kind = code->kind;
+        switch (kind)
+        {
+        case ASSIGN:{
+            char* left = print_operand(code->u.assign.left);
+            char* right = print_operand(code->u.assign.right);
+            fprintf(out_file, "%s := %s\n", left, right);
+            break;
+        }
+        case ADD:
+        case SUB:
+        case MUL:
+        case DIV:{
+            char* result = print_operand(code->u.binop.result);
+            char* op1 = print_operand(code->u.binop.op1);
+            char* op2 = print_operand(code->u.binop.op2);
+            printf_binop(kind, result, op1, op2);
+            break;
+        } 
+        case TAG:{
+            char* label = print_operand(code->u.label);
+            fprintf(out_file, "LABEL: %s\n", label);
+            break;
+        }  
+        case GOTO:{
+            char* label = print_operand(code->u.label);
+            fprintf(out_file, "GOTO %s\n", label);
+            break; 
+        }
+        case IF:{
+            Operand candidiate1 = code->u.ifnop.candidate1;
+            Operand candidiate2 = code->u.ifnop.candidate2;
+            Operand op = code->u.ifnop.op;
+            Operand label = code->u.ifnop.label;
+            char* label_if = print_operand(label);
+            char* op_ir = print_operand(op);
+            char* can_ir_1 = print_operand(candidiate1);
+            char* can_ir_2 = print_operand(candidiate2);
+            fprintf(out_file, "IF %s %s %s GOTO %s", can_ir_1, op_ir, can_ir_2, label_if);
+            break;
+        }
+        case READ:{
+            Operand read_var = code->u.variable;
+            char* var = print_operand(read_var);
+            fprintf(out_file, "READ %s\n", var);
+            break;
+        }
+        case WRITE:{
+            Operand read_var = code->u.variable;
+            char* var = print_operand(read_var);
+            fprintf(out_file, "WRITE %s\n", var);
+            break;
+        }
+        case CALL:{
+            Operand res = code->u.callf.res;
+            Operand function = code->u.callf.function;
+            char* res_f = print_operand(res);
+            char* func = print_operand(function);
+            fprintf(out_file, "%s := CALL %s\n", res_f, func);
+            break;
+        }
+        case ARG:{
+            Operand arg = code->u.arg;
+            char* arg_f = print_operand(arg);
+            fprintf(out_file, "ARG %s\n", arg_f);
+            break;
+        }
+        case FUNCTION:{
+            Operand func = code->u.func;
+            char* fun_f = print_operand(func);
+            fprintf(out_file, "FUNCTION %s:\n", fun_f);
+            break;
+        }
+        case PARAM:{
+            Operand param = code->u.param;
+            char* param_f = print_operand(param);
+            fprintf(out_file, "PARAM %s\n", param_f);
+            break;
+        }
+        case DEC:{
+            Operand var = code->u.dec_ar.var;
+            Operand size = code->u.dec_ar.size;
+            char* var_f = print_operand(var);
+            char* size_f = print_operand(size);
+            fprintf(out_file, "DEC %s %s\n", var_f, size_f);
+            break;
+        }
+        default:
+            break;
+        }
+        cur = cur->next;
+    }
+}
 
 char* new_temp(int count) {
     char* tmp = malloc(sizeof(char)*10);
@@ -32,7 +188,112 @@ char* new_label(int count) {
     return strcat(L, tmp);
 }
 
-ArgList translat_Args(struct ast* args, ArgList arg_list) {
+char* find_array_name(struct ast* vardec) {
+    struct ast* fir = vardec->left;
+    if (!strcmp(fir->token_name, "ID")) {
+        return fir->name;
+    } else {
+        char* name = find_array_name(fir);
+        return name;
+    }
+}
+
+void translate_array(struct ast* vardec) {
+    char* array_name = find_array_name(vardec);
+    Sym_node array_node = find(array_name, false);
+    int size = 1;
+    Type array_t = array_node->type;
+    while (array_t->kind == T_AR) {
+        size *= array_t->u.array.size;
+        array_t = array_t->u.array.elem;
+    }
+    size *= 4;
+    Operand array_size = construct_const(size);
+    Operand array_var = construct_var_name(array_name);
+    InterCodes ir_array = construct_inter_code_dec(array_var, array_size);
+    insert_inter_code(ir_array);
+}
+
+char* translate_VarDec(struct ast* vardec) {
+    struct ast* fir = vardec->left;
+    if (!strcmp(fir->token_name, "ID")) {
+        return fir->name;
+    } else {
+        translate_array(vardec);
+        return NULL;
+    }
+}
+
+void translate_Dec(struct ast* dec) {
+    struct ast* vardec = dec->left;
+    char* var_name = translate_VarDec(vardec);
+    struct ast* assig = vardec->right;
+    if (assig != NULL) {
+        translate_Exp(assig->right, var_name);
+    }
+}
+
+void translate_DecList(struct ast* declist) {
+    struct ast* dec = declist->left;
+    struct ast* comma = dec->right;
+    if (comma == NULL) {
+        translate_Dec(dec);
+    } else {
+        translate_Dec(dec);
+        translate_DecList(comma->right);
+    }
+}
+
+void translate_Def(struct ast* def) {
+    struct ast* declist = def->left->right;
+    translate_DecList(declist);
+}
+
+void translate_DefList(struct ast* deflist) {
+    if (deflist->line_num == -1) return;
+    struct ast* def = deflist->left;
+    translate_Def(def);
+    translate_DefList(def->right);
+}
+
+void translate_FunDec(struct ast* fundec) {
+    struct ast* f_ast = fundec->left;
+    Sym_node function = find(f_ast->name, true);
+    Operand f_node = construct_function(f_ast->name);
+    InterCodes ir_f = construct_inter_code_func(f_node);
+    insert_inter_code(ir_f);
+    ParamList params = function->type->u.function->param_list;
+    while (params != NULL) {
+        char* param_name = params->name;
+        Operand param_var = construct_var_name(param_name);
+        InterCodes ir_param = construct_inter_code_paramlist(param_var);
+        params = params->tail;
+    }
+}
+
+void translate_StmtList(struct ast* stmtlist) {
+    if (stmtlist->line_num == -1) return;
+    struct ast* stm = stmtlist->left;
+    translate_Stmt(stm);
+    translate_StmtList(stm->right);
+}
+
+void translate_CompSt(struct ast* compst) {
+    struct ast* deflist = compst->left->right;
+    struct ast* stmtlist = deflist->right;
+    translate_DefList(deflist);
+    translate_StmtList(stmtlist);
+}
+
+void translate_ExtDef(struct ast* extdef) {
+    struct ast* specif = extdef->left;
+    struct ast* func = specif->right;
+    struct ast* compst = func->right;
+    translate_FunDec(func);
+    translate_CompSt(compst);
+}
+
+ArgList translate_Args(struct ast* args, ArgList arg_list) {
     struct ast* exp = args->left;
     if (exp->right == NULL) {
         char* t_1 = new_temp(count_tmp ++);
@@ -48,7 +309,7 @@ ArgList translat_Args(struct ast* args, ArgList arg_list) {
         arg->name = t_1;
         arg->tail = arg_list;
         ArgList re_arg = malloc(sizeof(struct Arg_));
-        re_arg = translat_Args(exp->right->right, arg);
+        re_arg = translate_Args(exp->right->right, arg);
         return re_arg;
     }
 }
@@ -84,7 +345,7 @@ void translate_Exp(struct ast* exp, char* place) {
             } else {
                 Sym_node func = find(fir->name, true);
                 ArgList arg_list = NULL;
-                arg_list = translat_Args(trd, NULL);
+                arg_list = translate_Args(trd, NULL);
                 if (!strcmp(fir->name, "write")) {
                     Operand arg_one = construct_var_name(arg_list->name);
                     InterCodes ir_write = construct_inter_code_write_function(arg_one);
@@ -130,7 +391,6 @@ void translate_Exp(struct ast* exp, char* place) {
             Operand tmp_var_2 = construct_var_name(sec->name);
             Operand place_var = construct_var_name(place);
             InterCodes ir_plus = construct_inter_code_binop(ADD, place_var, tmp_var_1, tmp_var_2);
-            
         } else if (!strcmp(op->token_name, "MINUS")) {
             struct ast* sec = op->right;
             char* t_1 = new_temp(count_tmp ++);
@@ -140,7 +400,7 @@ void translate_Exp(struct ast* exp, char* place) {
             Operand tmp_var_1 = construct_var_name(fir->name);
             Operand tmp_var_2 = construct_var_name(sec->name);
             Operand place_var = construct_var_name(place);
-            InterCodes ir_plus = construct_inter_code_binop(DMINUS, place_var, tmp_var_1, tmp_var_2);
+            InterCodes ir_plus = construct_inter_code_binop(SUB, place_var, tmp_var_1, tmp_var_2);
         } else if (!strcmp(op->token_name, "STAR")) {
             struct ast* sec = op->right;
             char* t_1 = new_temp(count_tmp ++);
@@ -226,7 +486,7 @@ void translate_Stmt(struct ast* stmt) {
         Operand op_label_3 = construct_label(label_3);
         InterCodes ir_label_1 = construct_inter_code_label(op_label_1);
         insert_inter_code(ir_label_1);
-        translate_Cond(fir->right->right, op_label_2, op_label_3);
+        translate_Cond(fir->right->right, label_2, label_3);
         InterCodes ir_label_2 = construct_inter_code_label(op_label_2);
         insert_inter_code(ir_label_2);
         translate_Stmt(fir->right->right->right->right);
@@ -243,7 +503,7 @@ void translate_Stmt(struct ast* stmt) {
         Operand op_label_1 = construct_label(label_1);
         Operand op_label_2 = construct_label(label_2);
         if (el == NULL) {
-            translate_Cond(exp, op_label_1, op_label_2);
+            translate_Cond(exp, label_1, label_2);
             InterCodes ir_label_1 = construct_inter_code_label(op_label_1);
             insert_inter_code(ir_label_1);
             translate_Stmt(stmt_1);
@@ -252,7 +512,7 @@ void translate_Stmt(struct ast* stmt) {
         } else {
             char* label_3 = new_label(count_label ++);
             Operand op_label_3 = construct_label(label_3);
-            translate_Cond(exp, op_label_1, op_label_2);
+            translate_Cond(exp, label_1, label_2);
             InterCodes ir_label_1 = construct_inter_code_label(op_label_1);
             insert_inter_code(ir_label_1);
             translate_Stmt(stmt_1);
@@ -318,44 +578,18 @@ void translate_Cond(struct ast* exp, char* label_true, char* label_false) {
     }
 }
 
-
-
-
-
 void generate_ir(struct ast* root_, int depth) {
     if (root_ != NULL) {
         //printf("%d %8x %8x %8x\n", depth, root, root->left, root->right);
         if (root_ -> line_num != -1) {
             if(!strcmp(root_ -> token_name,"ExtDef")) {
-                
-                struct ast* spec = root_->left;
-                
-                Type t_spec =  Specifier(spec);
-                
-                struct ast* judge = spec->right;
-            
-                if (strcmp(judge->token_name, "SEMI")) {
-                    if (!strcmp(judge->token_name, "ExtDecList")) {
-                        ExtDecList(judge, t_spec);
-                    } else {
-                        struct ast* cpmst = judge->right;
-                        if (!strcmp(cpmst->token_name, "SEMI")) {
-                            Type f_ty = FunDec(judge, t_spec, false);
-                        } else {
-                            Type f_ty = FunDec(judge, t_spec, true);
-                            CompSt(cpmst); 
-                        }
-                    }
-                } 
+                translate_ExtDef(root);
             } 
         }
-       
-        
         //printf("left    %8x\n", root -> left);
         struct ast* itr = root_ -> left;
-        
         while (itr != NULL) {
-            construct_sym_table(itr, depth + 1);
+            generate_ir(itr, depth + 1);
             itr = itr -> right;
         }
     }

@@ -20,8 +20,7 @@ bool find_func(struct ast* fir, bool is_arg) {
         } else {
             return false;
         }
-    }
-    if (is_arg) {
+    } else {
         ParamList f_list = s_node->type->u.function->param_list;
         ParamList p_list = Args(fir->right->right);
         return equiv_plist(f_list, p_list);
@@ -536,7 +535,7 @@ void CompSt(struct ast* aim) {
     
 }
 
-void generate_ir(struct ast* root_, int depth) {
+void generate_ir_sym(struct ast* root_, int depth) {
     if (root_ != NULL) {
         //printf("%d %8x %8x %8x\n", depth, root, root->left, root->right);
         if (root_ -> line_num != -1) {
@@ -569,7 +568,7 @@ void generate_ir(struct ast* root_, int depth) {
         struct ast* itr = root_ -> left;
         
         while (itr != NULL) {
-            construct_sym_table(itr, depth + 1);
+            generate_ir_sym(itr, depth + 1);
             itr = itr -> right;
         }
     }

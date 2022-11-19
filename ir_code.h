@@ -19,16 +19,19 @@ struct Operand_ {
 
 struct InterCode_
 {
-    enum { ASSIGN, ADD, SUB, MUL, DIV, DMINUS, TAG, GOTO, IF, READ, WRITE, CALL, ARG} kind;
+    enum { ASSIGN, ADD, SUB, MUL, DIV, TAG, GOTO, IF, READ, WRITE, CALL, ARG, FUNCTION, PARAM, DEC} kind;
     union {
         struct { Operand right, left; } assign;
         struct { Operand result, op1, op2; } binop;
         struct { Operand candidate1, op, candidate2, label; } ifnop;
         struct { Operand result, op1; } snop;
-        struct { Operand res, function} callf;
+        struct { Operand res, function; } callf;
+        struct { Operand var, size; } dec_ar;
         Operand label;
         Operand variable;
         Operand arg;
+        Operand func;
+        Operand param;
     } u;
 };
 
@@ -47,6 +50,9 @@ Operand construct_label(char* label);
 Operand construct_op(char* op);
 Operand construct_function(char* func_name);
 Operand construct_arg(char* arg);
+InterCodes construct_inter_code_dec(Operand var_name, Operand size);
+InterCodes construct_inter_code_paramlist(Operand param);
+InterCodes construct_inter_code_func(Operand func);
 InterCodes construct_inter_code_arg(Operand arg);
 InterCodes construct_inter_code_write_function(Operand place_var);
 InterCodes construct_inter_code_call_function(Operand place_var, Operand function);

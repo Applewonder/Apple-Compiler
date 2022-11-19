@@ -71,6 +71,40 @@ Operand construct_op(char* op) {
     return operand;
 }
 
+InterCodes construct_inter_code_dec(Operand var_name, Operand size) {
+    InterCode inter_dec = malloc(sizeof(struct InterCode_));
+    inter_dec->kind = DEC;
+    inter_dec->u.dec_ar.size = size;
+    inter_dec->u.dec_ar.var = var_name;
+    InterCodes dec_node = malloc(sizeof(struct InterCodes_));
+    dec_node->code = inter_dec;
+    dec_node->next = NULL;
+    dec_node->prev = NULL;
+    return dec_node;
+}
+
+InterCodes construct_inter_code_paramlist(Operand param) {
+    InterCode inter_param = malloc(sizeof(struct InterCode_));
+    inter_param->kind = PARAM;
+    inter_param->u.param = param;
+    InterCodes param_node = malloc(sizeof(struct InterCodes_));
+    param_node->code = inter_param;
+    param_node->next = NULL;
+    param_node->prev = NULL;
+    return param_node;
+}
+
+InterCodes construct_inter_code_func(Operand func) {
+    InterCode inter_f = malloc(sizeof(struct InterCode_));
+    inter_f->kind = FUNCTION;
+    inter_f->u.func = func;
+    InterCodes f_node = malloc(sizeof(struct InterCodes_));
+    f_node->code = inter_f;
+    f_node->next = NULL;
+    f_node->prev = NULL;
+    return f_node;
+}
+
 InterCodes construct_inter_code_if(Operand candidate1, Operand op, Operand candidate2, Operand label) {
     InterCode inter_goto = malloc(sizeof(struct InterCode_));
     inter_goto->kind = IF;

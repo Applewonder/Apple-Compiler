@@ -2,13 +2,17 @@
 #include "ast.h"
 #include "generate_ir_sym.h"
 #include "data_hash.h"
+#include "generate_ir.h"
+#include "ir_code.h"
 
 extern int yyparse();
 extern int yyrestart();
 extern int yylineno;
 extern int yydebug;
 extern struct ast* root;
+extern InterCodes start;
 int error_flag = 0;
+FILE *out_file;
  
 int main(int argc, char *argv[]) {
     //yydebug = 1;
@@ -64,9 +68,12 @@ int main(int argc, char *argv[]) {
         perror(argv[1]);
         return 1;
     }
+    out_file = fopen(argv[2], "w");
     yyrestart(f);
     yyparse();
-    construct_sym_table(root, 0);
+    generate_ir_sym(root, 0);
+    generate_ir(root, 0);
+    print_ir(start);
     final_check();
     return 0;
 }
