@@ -6,7 +6,13 @@ InterCodes start;
 InterCodes end;
 
 void insert_inter_code(InterCodes inter_code) {
+    if (start == NULL) {
+        start = inter_code;
+        end = inter_code;
+        return;
+    }
     inter_code->prev = end;
+    end->next = inter_code;
     end = inter_code;
 }
 

@@ -3,7 +3,7 @@
 #include "ast.h"
 #include "ir_code.h"
 
-char* print_operand(Operand ope);
+char* print_operand(Operand ope, bool is_dec);
 void printf_binop(int kind, char* result, char* op1, char* op2);
 void print_ir(InterCodes cur);
 char* new_temp(int count);

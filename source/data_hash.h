@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
-#include "symbol_table.h"
+#include "generate_ir_sym.h"
 
 typedef struct sym_node_* Sym_node;
 typedef struct chain_node_* Chain_node;

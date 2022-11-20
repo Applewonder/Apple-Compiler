@@ -18,7 +18,7 @@ extern FILE* out_file;
 static int count_tmp = 0;
 static int count_label = 0;
 
-char* print_operand(Operand ope) {
+char* print_operand(Operand ope, bool is_dec) {
     int kind = ope->kind;
     switch (kind)
     {
@@ -27,7 +27,11 @@ char* print_operand(Operand ope) {
         break;
     case CONSTANT:{
         char* num = malloc(sizeof(char) * 10);
-        sprintf(num, "#%d", ope->u.value);
+        if (is_dec) {
+            sprintf(num, "%d", ope->u.value);
+        } else {
+            sprintf(num, "#%d", ope->u.value);
+        }
         return num;
     }
     case ADDRESS:
@@ -78,14 +82,15 @@ void printf_binop(int kind, char* result, char* op1, char* op2) {
 }
 
 void print_ir(InterCodes cur) {
-    InterCode code = cur->code;
     while (cur != NULL) {
+        InterCode code = cur->code;
         int kind = code->kind;
         switch (kind)
         {
         case ASSIGN:{
-            char* left = print_operand(code->u.assign.left);
-            char* right = print_operand(code->u.assign.right);
+            char* left = print_operand(code->u.assign.left, false);
+            char* right = print_operand(code->u.assign.right, false);
+            if (left == NULL || right == NULL) break;
             fprintf(out_file, "%s := %s\n", left, right);
             break;
         }
@@ -93,19 +98,19 @@ void print_ir(InterCodes cur) {
         case SUB:
         case MUL:
         case DIV:{
-            char* result = print_operand(code->u.binop.result);
-            char* op1 = print_operand(code->u.binop.op1);
-            char* op2 = print_operand(code->u.binop.op2);
+            char* result = print_operand(code->u.binop.result, false);
+            char* op1 = print_operand(code->u.binop.op1, false);
+            char* op2 = print_operand(code->u.binop.op2, false);
             printf_binop(kind, result, op1, op2);
             break;
         } 
         case TAG:{
-            char* label = print_operand(code->u.label);
-            fprintf(out_file, "LABEL: %s\n", label);
+            char* label = print_operand(code->u.label, false);
+            fprintf(out_file, "LABEL %s :\n", label);
             break;
         }  
         case GOTO:{
-            char* label = print_operand(code->u.label);
+            char* label = print_operand(code->u.label, false);
             fprintf(out_file, "GOTO %s\n", label);
             break; 
         }
@@ -114,56 +119,56 @@ void print_ir(InterCodes cur) {
             Operand candidiate2 = code->u.ifnop.candidate2;
             Operand op = code->u.ifnop.op;
             Operand label = code->u.ifnop.label;
-            char* label_if = print_operand(label);
-            char* op_ir = print_operand(op);
-            char* can_ir_1 = print_operand(candidiate1);
-            char* can_ir_2 = print_operand(candidiate2);
-            fprintf(out_file, "IF %s %s %s GOTO %s", can_ir_1, op_ir, can_ir_2, label_if);
+            char* label_if = print_operand(label, false);
+            char* op_ir = print_operand(op, false);
+            char* can_ir_1 = print_operand(candidiate1, false);
+            char* can_ir_2 = print_operand(candidiate2, false);
+            fprintf(out_file, "IF %s %s %s GOTO %s\n", can_ir_1, op_ir, can_ir_2, label_if);
             break;
         }
         case READ:{
             Operand read_var = code->u.variable;
-            char* var = print_operand(read_var);
+            char* var = print_operand(read_var, false);
             fprintf(out_file, "READ %s\n", var);
             break;
         }
         case WRITE:{
             Operand read_var = code->u.variable;
-            char* var = print_operand(read_var);
+            char* var = print_operand(read_var, false);
             fprintf(out_file, "WRITE %s\n", var);
             break;
         }
         case CALL:{
             Operand res = code->u.callf.res;
             Operand function = code->u.callf.function;
-            char* res_f = print_operand(res);
-            char* func = print_operand(function);
+            char* res_f = print_operand(res, false);
+            char* func = print_operand(function, false);
             fprintf(out_file, "%s := CALL %s\n", res_f, func);
             break;
         }
         case ARG:{
             Operand arg = code->u.arg;
-            char* arg_f = print_operand(arg);
+            char* arg_f = print_operand(arg, false);
             fprintf(out_file, "ARG %s\n", arg_f);
             break;
         }
         case FUNCTION:{
             Operand func = code->u.func;
-            char* fun_f = print_operand(func);
-            fprintf(out_file, "FUNCTION %s:\n", fun_f);
+            char* fun_f = print_operand(func, false);
+            fprintf(out_file, "FUNCTION %s :\n", fun_f);
             break;
         }
         case PARAM:{
             Operand param = code->u.param;
-            char* param_f = print_operand(param);
+            char* param_f = print_operand(param, false);
             fprintf(out_file, "PARAM %s\n", param_f);
             break;
         }
         case DEC:{
             Operand var = code->u.dec_ar.var;
             Operand size = code->u.dec_ar.size;
-            char* var_f = print_operand(var);
-            char* size_f = print_operand(size);
+            char* var_f = print_operand(var, true);
+            char* size_f = print_operand(size, true);
             fprintf(out_file, "DEC %s %s\n", var_f, size_f);
             break;
         }
@@ -176,18 +181,20 @@ void print_ir(InterCodes cur) {
 
 char* new_temp(int count) {
     char* tmp = malloc(sizeof(char)*10);
-    sprintf(tmp, "%d", count);
-    char* t = "t";
-    return strcat(t, tmp);
+    sprintf(tmp, "t%d", count);
+    return tmp;
 }
 
 char* new_label(int count) {
     char* tmp = malloc(sizeof(char)*10);
-    sprintf(tmp, "%d", count);
-    char* L = "L";
-    return strcat(L, tmp);
+    sprintf(tmp, "L%d", count);
+    return tmp;
 }
 
+char* compute_array_length(struct ast* tree_node) {
+
+}
+ 
 char* find_array_name(struct ast* vardec) {
     struct ast* fir = vardec->left;
     if (!strcmp(fir->token_name, "ID")) {
@@ -375,7 +382,7 @@ void translate_Exp(struct ast* exp, char* place) {
             char* t_1 = new_temp(count_tmp ++);
             translate_Exp(op->right, t_1);
             Operand place_var = construct_var_name(place);
-            Operand assign_var = construct_var_name(fir->name);
+            Operand assign_var = construct_var_name(fir->left->name);//TODO:struct array
             Operand tmp_var = construct_var_name(t_1);
             InterCodes ir_var = construct_inter_code_assign(assign_var, tmp_var);
             insert_inter_code(ir_var);
@@ -387,40 +394,44 @@ void translate_Exp(struct ast* exp, char* place) {
             char* t_2 = new_temp(count_tmp ++);
             translate_Exp(fir, t_1);
             translate_Exp(sec, t_2);
-            Operand tmp_var_1 = construct_var_name(fir->name);
-            Operand tmp_var_2 = construct_var_name(sec->name);
+            Operand tmp_var_1 = construct_var_name(t_1);
+            Operand tmp_var_2 = construct_var_name(t_2);
             Operand place_var = construct_var_name(place);
             InterCodes ir_plus = construct_inter_code_binop(ADD, place_var, tmp_var_1, tmp_var_2);
+            insert_inter_code(ir_plus);
         } else if (!strcmp(op->token_name, "MINUS")) {
             struct ast* sec = op->right;
             char* t_1 = new_temp(count_tmp ++);
             char* t_2 = new_temp(count_tmp ++);
             translate_Exp(fir, t_1);
             translate_Exp(sec, t_2);
-            Operand tmp_var_1 = construct_var_name(fir->name);
-            Operand tmp_var_2 = construct_var_name(sec->name);
+            Operand tmp_var_1 = construct_var_name(t_1);
+            Operand tmp_var_2 = construct_var_name(t_2);
             Operand place_var = construct_var_name(place);
             InterCodes ir_plus = construct_inter_code_binop(SUB, place_var, tmp_var_1, tmp_var_2);
+            insert_inter_code(ir_plus);
         } else if (!strcmp(op->token_name, "STAR")) {
             struct ast* sec = op->right;
             char* t_1 = new_temp(count_tmp ++);
             char* t_2 = new_temp(count_tmp ++);
             translate_Exp(fir, t_1);
             translate_Exp(sec, t_2);
-            Operand tmp_var_1 = construct_var_name(fir->name);
-            Operand tmp_var_2 = construct_var_name(sec->name);
+            Operand tmp_var_1 = construct_var_name(t_1);
+            Operand tmp_var_2 = construct_var_name(t_2);
             Operand place_var = construct_var_name(place);
             InterCodes ir_plus = construct_inter_code_binop(MUL, place_var, tmp_var_1, tmp_var_2);
+            insert_inter_code(ir_plus);
         } else if (!strcmp(op->token_name, "DIV")) {
             struct ast* sec = op->right;
             char* t_1 = new_temp(count_tmp ++);
             char* t_2 = new_temp(count_tmp ++);
             translate_Exp(fir, t_1);
             translate_Exp(sec, t_2);
-            Operand tmp_var_1 = construct_var_name(fir->name);
-            Operand tmp_var_2 = construct_var_name(sec->name);
+            Operand tmp_var_1 = construct_var_name(t_1);
+            Operand tmp_var_2 = construct_var_name(t_2);
             Operand place_var = construct_var_name(place);
             InterCodes ir_plus = construct_inter_code_binop(DIV, place_var, tmp_var_1, tmp_var_2);
+            insert_inter_code(ir_plus);
         } else if (!strcmp(op->token_name, "AND") || !strcmp(op->token_name, "OR") || !strcmp(op->token_name, "RELOP")) {
             char* label_1 = new_label(count_label ++);
             char* label_2 = new_label(count_label ++);
@@ -468,6 +479,9 @@ void translate_Exp(struct ast* exp, char* place) {
         Operand op_label_2 = construct_label(label_2);
         InterCodes ir_label_2 = construct_inter_code_label(op_label_2);
         insert_inter_code(ir_label_2);
+    } else if (!strcmp(fir->token_name, "LP")) {
+        struct ast* sec = fir->right;
+        translate_Exp(sec, place);
     }
 }
 
@@ -579,18 +593,10 @@ void translate_Cond(struct ast* exp, char* label_true, char* label_false) {
 }
 
 void generate_ir(struct ast* root_, int depth) {
-    if (root_ != NULL) {
-        //printf("%d %8x %8x %8x\n", depth, root, root->left, root->right);
-        if (root_ -> line_num != -1) {
-            if(!strcmp(root_ -> token_name,"ExtDef")) {
-                translate_ExtDef(root);
-            } 
-        }
-        //printf("left    %8x\n", root -> left);
-        struct ast* itr = root_ -> left;
-        while (itr != NULL) {
-            generate_ir(itr, depth + 1);
-            itr = itr -> right;
-        }
+    struct ast* extdeclist = root_->left;
+    while (extdeclist->line_num != -1) {
+        struct ast* extdef = extdeclist->left;
+        translate_ExtDef(extdef);
+        extdeclist = extdef->right;
     }
 }

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "data_hash.h"
-#include "symbol_table.h"
+#include "generate_ir_sym.h"
 
 extern struct ast* root;
 
