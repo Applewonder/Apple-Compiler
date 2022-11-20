@@ -4,7 +4,7 @@
             "name": "C/C++: gcc-7 生成和调试活动文件",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/apple/apple_compiler/print_ir",
+            "program": "/home/apple/apple_compiler/source/print_ir",
             "args": ["test.cmm", "f.ir"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

@@ -2,6 +2,7 @@
 #define GIR_H
 #include "ast.h"
 #include "ir_code.h"
+#include "generate_ir_sym.h"
 
 char* print_operand(Operand ope, bool is_dec);
 void printf_binop(int kind, char* result, char* op1, char* op2);
@@ -24,5 +25,10 @@ void translate_Cond(struct ast* exp, char* label_true, char* label_false);
 void translate_Stmt(struct ast* stmt);
 void translate_Exp(struct ast* exp, char* place);
 void generate_ir(struct ast* root_, int depth);
+char* compute_array_length(struct ast* exp);
+int calculate_array_size(Type type);
+int calculate_stru_size(FieldList field, int size);
+int calculate_type_size(Type type);
+Type calculate_array_elem_size(struct ast* exp);
 
 #endif

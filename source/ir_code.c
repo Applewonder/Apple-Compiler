@@ -63,6 +63,30 @@ InterCodes construct_inter_code_goto(Operand label) {
     return goto_node;
 }
 
+InterCodes construct_inter_code_assign_address(Operand place_var, Operand addr) {
+    InterCode inter_addr = malloc(sizeof(struct InterCode_));
+    inter_addr->kind = ADDR;
+    inter_addr->u.addr.dest = place_var;
+    inter_addr->u.addr.src = addr;
+    InterCodes addr_node = malloc(sizeof(struct InterCodes_));
+    addr_node->code = inter_addr;
+    addr_node->next = NULL;
+    addr_node->prev = NULL;
+    return addr_node;
+}
+
+InterCodes construct_inter_code_get_address(Operand dest, Operand src) {
+    InterCode inter_get_addr = malloc(sizeof(struct InterCode_));
+    inter_get_addr->kind = GETADDR;
+    inter_get_addr->u.get_addr.dest = dest;
+    inter_get_addr->u.get_addr.src = src;
+    InterCodes get_addr_node = malloc(sizeof(struct InterCodes_));
+    get_addr_node->code = inter_get_addr;
+    get_addr_node->next = NULL;
+    get_addr_node->prev = NULL;
+    return get_addr_node;
+}
+
 Operand construct_arg(char* arg) {
     Operand argue = malloc(sizeof(struct Operand_));
     argue->kind = ARGUE;
@@ -77,6 +101,18 @@ Operand construct_op(char* op) {
     return operand;
 }
 
+InterCodes construct_inter_code_return(Operand var_name) {
+    InterCode inter_return = malloc(sizeof(struct InterCode_));
+    inter_return->kind = RETURN;
+    inter_return->u.variable = var_name;
+    InterCodes return_node = malloc(sizeof(struct InterCodes_));
+    return_node->code = inter_return;
+    return_node->next = NULL;
+    return_node->prev = NULL;
+    return return_node;
+}
+
+
 InterCodes construct_inter_code_dec(Operand var_name, Operand size) {
     InterCode inter_dec = malloc(sizeof(struct InterCode_));
     inter_dec->kind = DEC;
@@ -87,6 +123,20 @@ InterCodes construct_inter_code_dec(Operand var_name, Operand size) {
     dec_node->next = NULL;
     dec_node->prev = NULL;
     return dec_node;
+}
+
+
+
+InterCodes construct_inter_code_mem(Operand dest, Operand src) {
+    InterCode inter_mem = malloc(sizeof(struct InterCode_));
+    inter_mem->kind = MEM;
+    inter_mem->u.mem.dest = dest;
+    inter_mem->u.mem.src = src;
+    InterCodes mem_node = malloc(sizeof(struct InterCodes_));
+    mem_node->code = inter_mem;
+    mem_node->next = NULL;
+    mem_node->prev = NULL;
+    return mem_node;
 }
 
 InterCodes construct_inter_code_paramlist(Operand param) {

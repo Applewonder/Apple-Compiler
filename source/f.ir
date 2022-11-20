@@ -1,0 +1,134 @@
+FUNCTION get_max :
+PARAM max_arr
+max_idx := #0
+t0 := max_arr
+t1 := #0
+t2 := t1 * #4
+t0 := t0 + t2
+max_val := *t0
+max_len := #4
+max_cnt := #0
+LABEL L0 :
+t3 := max_cnt
+t4 := max_len
+IF t3 < t4 GOTO L1
+GOTO L2
+LABEL L1 :
+t7 := max_arr
+t8 := max_cnt
+t9 := t8 * #4
+t7 := t7 + t9
+t5 := *t7
+t6 := max_val
+IF t5 > t6 GOTO L3
+GOTO L4
+LABEL L3 :
+t10 := max_cnt
+max_idx := t10
+t12 := max_arr
+t13 := max_cnt
+t14 := t13 * #4
+t12 := t12 + t14
+t11 := *t12
+max_val := t11
+LABEL L4 :
+t16 := max_cnt
+t17 := #1
+t15 := t16 + t17
+max_cnt := t15
+GOTO L0
+LABEL L2 :
+t18 := max_idx
+RETURN t18
+FUNCTION mod :
+PARAM m1
+PARAM m2
+t20 := m1
+t24 := m1
+t25 := m2
+t22 := t24 / t25
+t23 := m2
+t21 := t22 * t23
+t19 := t20 - t21
+RETURN t19
+FUNCTION main :
+len := #4
+DEC t26 64
+val_arr := &t26
+DEC t27 16
+res_arr := &t27
+DEC t28 8
+copy_arr := &t28
+o_cnt := #0
+i_cnt := #0
+t29 := #0
+o_cnt := t29
+LABEL L5 :
+t30 := o_cnt
+t31 := len
+IF t30 < t31 GOTO L6
+GOTO L7
+LABEL L6 :
+t32 := #0
+i_cnt := t32
+LABEL L8 :
+t33 := i_cnt
+t34 := len
+IF t33 < t34 GOTO L9
+GOTO L10
+LABEL L9 :
+t37 := o_cnt
+t38 := i_cnt
+t36 := t37 + t38
+t39 := len
+ARG t39
+ARG t36
+t35 := CALL mod
+t40 := val_arr
+t41 := o_cnt
+t42 := t41 * #16
+t40 := t40 + t42
+t43 := i_cnt
+t44 := t43 * #4
+t40 := t40 + t44
+*t40 := t35
+t46 := i_cnt
+t47 := #1
+t45 := t46 + t47
+i_cnt := t45
+GOTO L8
+LABEL L10 :
+t50 := val_arr
+t51 := o_cnt
+t52 := t51 * #16
+t50 := t50 + t52
+t49 := t50
+ARG t49
+t48 := CALL get_max
+t53 := res_arr
+t54 := o_cnt
+t55 := t54 * #4
+t53 := t53 + t55
+*t53 := t48
+t57 := o_cnt
+t58 := #1
+t56 := t57 + t58
+o_cnt := t56
+GOTO L5
+LABEL L7 :
+t59 := res_arr
+copy_arr := t59
+t61 := copy_arr
+t62 := #0
+t63 := t62 * #4
+t61 := t61 + t63
+t60 := *t61
+WRITE t60
+t65 := copy_arr
+t66 := #1
+t67 := t66 * #4
+t65 := t65 + t67
+t64 := *t65
+WRITE t64
+t68 := #0
+RETURN t68
