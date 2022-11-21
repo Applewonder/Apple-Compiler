@@ -216,7 +216,7 @@ void print_ir(InterCodes cur) {
 
 char* new_temp(int count) {
     char* tmp = malloc(sizeof(char)*10);
-    sprintf(tmp, "t%d", count);
+    sprintf(tmp, "tmp_value_%d", count);
     return tmp;
 }
 
@@ -570,7 +570,7 @@ void translate_Exp(struct ast* exp, char* place) {
                     Type type = calculate_array_elem_size(fir->left);
                     assign_var = construct_var_name(tmp_exp_array_name);
                     Operand tmp_var = construct_var_name(t_1);
-                    if (type->kind == T_AR) {
+                    if (type->kind == T_AR || type->kind == T_STRU) {
                         InterCodes ir_var = construct_inter_code_assign(assign_var, tmp_var);
                         insert_inter_code(ir_var);
                     } else {
@@ -659,7 +659,7 @@ void translate_Exp(struct ast* exp, char* place) {
             Type type = calculate_array_elem_size(fir);
             Operand addr = construct_var_name(tmp_exp_array_name);
             Operand place_var = construct_var_name(place);
-            if (type->kind == T_AR) {
+            if (type->kind == T_AR || type->kind == T_STRU) {
                 InterCodes ir_addr = construct_inter_code_assign(place_var, addr);
                 insert_inter_code(ir_addr);
             } else {

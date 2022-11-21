@@ -1,217 +1,407 @@
-FUNCTION dot :
-PARAM dp1
-PARAM dp2
-t7 := dp1 + #0
-t5 := *t7
-t8 := dp2 + #0
-t6 := *t8
-t3 := t5 * t6
-t11 := dp1 + #4
-t9 := *t11
-t12 := dp2 + #4
-t10 := *t12
-t4 := t9 * t10
-t1 := t3 + t4
-t15 := dp1 + #8
-t13 := *t15
-t16 := dp2 + #8
-t14 := *t16
-t2 := t13 * t14
-t0 := t1 + t2
-RETURN t0
-FUNCTION sqrt :
-PARAM si
-s_cnt := #0
+FUNCTION mod :
+PARAM a
+PARAM b
+tmp_value_1 := a
+tmp_value_5 := a
+tmp_value_6 := b
+tmp_value_3 := tmp_value_5 / tmp_value_6
+tmp_value_4 := b
+tmp_value_2 := tmp_value_3 * tmp_value_4
+tmp_value_0 := tmp_value_1 - tmp_value_2
+RETURN tmp_value_0
+FUNCTION do_work :
+PARAM n
+tmp_value_8 := n
+tmp_value_9 := #5
+ARG tmp_value_9
+ARG tmp_value_8
+tmp_value_7 := CALL mod
+n := tmp_value_7
+tmp_value_11 := #2
+tmp_value_12 := n
+tmp_value_10 := tmp_value_11 * tmp_value_12
+x1 := tmp_value_10
+tmp_value_14 := n
+tmp_value_15 := n
+tmp_value_13 := tmp_value_14 + tmp_value_15
+x2 := tmp_value_13
+tmp_value_17 := #4
+tmp_value_18 := #4
+tmp_value_16 := tmp_value_17 * tmp_value_18
+x3 := tmp_value_16
+tmp_value_22 := x3
+tmp_value_23 := x2
+tmp_value_20 := tmp_value_22 + tmp_value_23
+tmp_value_21 := x1
+tmp_value_19 := tmp_value_20 + tmp_value_21
+x1 := tmp_value_19
+tmp_value_25 := x1
+tmp_value_31 := x1
+tmp_value_32 := #1
+tmp_value_29 := tmp_value_31 + tmp_value_32
+tmp_value_33 := x2
+tmp_value_34 := #1
+tmp_value_30 := tmp_value_33 + tmp_value_34
+tmp_value_27 := tmp_value_29 * tmp_value_30
+tmp_value_35 := x3
+tmp_value_36 := #1
+tmp_value_28 := tmp_value_35 + tmp_value_36
+tmp_value_26 := tmp_value_27 * tmp_value_28
+tmp_value_24 := tmp_value_25 + tmp_value_26
+x2 := tmp_value_24
+tmp_value_42 := x1
+tmp_value_44 := x1
+tmp_value_45 := #1
+tmp_value_43 := tmp_value_44 + tmp_value_45
+tmp_value_40 := tmp_value_42 * tmp_value_43
+tmp_value_48 := x2
+tmp_value_49 := #1
+tmp_value_46 := tmp_value_48 + tmp_value_49
+tmp_value_50 := x2
+tmp_value_51 := #1
+tmp_value_47 := tmp_value_50 + tmp_value_51
+tmp_value_41 := tmp_value_46 * tmp_value_47
+tmp_value_38 := tmp_value_40 + tmp_value_41
+tmp_value_54 := x3
+tmp_value_55 := #1
+tmp_value_52 := tmp_value_54 + tmp_value_55
+tmp_value_56 := x3
+tmp_value_57 := #1
+tmp_value_53 := tmp_value_56 + tmp_value_57
+tmp_value_39 := tmp_value_52 * tmp_value_53
+tmp_value_37 := tmp_value_38 + tmp_value_39
+x3 := tmp_value_37
+tmp_value_63 := x1
+tmp_value_64 := #1
+tmp_value_61 := tmp_value_63 + tmp_value_64
+tmp_value_65 := x2
+tmp_value_66 := #1
+tmp_value_62 := tmp_value_65 + tmp_value_66
+tmp_value_59 := tmp_value_61 + tmp_value_62
+tmp_value_67 := x3
+tmp_value_68 := #1
+tmp_value_60 := tmp_value_67 + tmp_value_68
+tmp_value_58 := tmp_value_59 + tmp_value_60
+x1 := tmp_value_58
+tmp_value_72 := x1
+tmp_value_73 := x2
+tmp_value_70 := tmp_value_72 + tmp_value_73
+tmp_value_71 := x3
+tmp_value_69 := tmp_value_70 + tmp_value_71
+RETURN tmp_value_69
+FUNCTION main :
+t1 := #2
+t2 := #5
+t3 := #10
+tmp_value_76 := #3
+tmp_value_78 := t2
+tmp_value_79 := t3
+tmp_value_77 := tmp_value_78 * tmp_value_79
+tmp_value_74 := tmp_value_76 * tmp_value_77
+tmp_value_80 := #100
+tmp_value_81 := #5
+tmp_value_75 := tmp_value_80 / tmp_value_81
+i := tmp_value_74 - tmp_value_75
+tmp_value_84 := #42
+tmp_value_88 := t1
+tmp_value_89 := t2
+tmp_value_86 := tmp_value_88 * tmp_value_89
+tmp_value_92 := t1
+tmp_value_94 := t2
+tmp_value_95 := t3
+tmp_value_93 := tmp_value_94 * tmp_value_95
+tmp_value_90 := tmp_value_92 * tmp_value_93
+tmp_value_91 := #32
+tmp_value_87 := tmp_value_90 / tmp_value_91
+tmp_value_85 := tmp_value_86 * tmp_value_87
+tmp_value_82 := tmp_value_84 - tmp_value_85
+tmp_value_83 := #100
+j := tmp_value_82 + tmp_value_83
+tmp_value_112 := #3
+tmp_value_113 := #4
+tmp_value_110 := tmp_value_112 * tmp_value_113
+tmp_value_111 := #5
+tmp_value_108 := tmp_value_110 * tmp_value_111
+tmp_value_109 := #10
+tmp_value_106 := tmp_value_108 - tmp_value_109
+tmp_value_117 := t1
+tmp_value_118 := t2
+tmp_value_116 := tmp_value_117 * tmp_value_118
+tmp_value_114 := #0 - tmp_value_116
+tmp_value_115 := #3
+tmp_value_107 := tmp_value_114 * tmp_value_115
+tmp_value_104 := tmp_value_106 - tmp_value_107
+tmp_value_119 := t1
+tmp_value_120 := t2
+tmp_value_105 := tmp_value_119 * tmp_value_120
+tmp_value_102 := tmp_value_104 - tmp_value_105
+tmp_value_121 := t1
+tmp_value_122 := t2
+tmp_value_103 := tmp_value_121 * tmp_value_122
+tmp_value_100 := tmp_value_102 - tmp_value_103
+tmp_value_101 := #3
+tmp_value_98 := tmp_value_100 + tmp_value_101
+tmp_value_99 := #2
+tmp_value_96 := tmp_value_98 + tmp_value_99
+tmp_value_97 := #1
+k := tmp_value_96 + tmp_value_97
+cnt := #0
+sum := #0
+tmp_value_123 := t1
+tmp_value_124 := t2
+len := tmp_value_123 * tmp_value_124
+DEC tmp_value_125 40
+array := &tmp_value_125
+DEC tmp_value_126 40
+brray := &tmp_value_126
 LABEL L0 :
-t17 := s_cnt
-t18 := si
-IF t17 <= t18 GOTO L1
+tmp_value_127 := cnt
+tmp_value_128 := k
+IF tmp_value_127 < tmp_value_128 GOTO L1
 GOTO L2
 LABEL L1 :
-t19 := s_cnt
-t20 := s_cnt
-lower := t19 * t20
-t23 := s_cnt
-t24 := #1
-t21 := t23 + t24
-t25 := s_cnt
-t26 := #1
-t22 := t25 + t26
-upper := t21 * t22
-t27 := #0
-t28 := si
-t29 := lower
-IF t28 >= t29 GOTO L6
-GOTO L7
-LABEL L6 :
-t27 := #1
-LABEL L7 :
-IF t27 != #0 GOTO L5
-GOTO L4
-LABEL L5 :
-t30 := #0
-t31 := si
-t32 := upper
-IF t31 < t32 GOTO L8
-GOTO L9
-LABEL L8 :
-t30 := #1
-LABEL L9 :
-IF t30 != #0 GOTO L3
-GOTO L4
-LABEL L3 :
-t33 := s_cnt
-RETURN t33
-LABEL L4 :
-t35 := s_cnt
-t36 := #1
-t34 := t35 + t36
-s_cnt := t34
+tmp_value_130 := sum
+tmp_value_131 := #1
+tmp_value_129 := tmp_value_130 + tmp_value_131
+sum := tmp_value_129
+tmp_value_132 := i
+tmp_value_133 := array
+tmp_value_135 := cnt
+tmp_value_136 := len
+ARG tmp_value_136
+ARG tmp_value_135
+tmp_value_134 := CALL mod
+tmp_value_137 := tmp_value_134 * #4
+tmp_value_133 := tmp_value_133 + tmp_value_137
+*tmp_value_133 := tmp_value_132
+tmp_value_139 := i
+tmp_value_140 := #1
+tmp_value_138 := tmp_value_139 + tmp_value_140
+i := tmp_value_138
+tmp_value_142 := cnt
+tmp_value_143 := #1
+tmp_value_141 := tmp_value_142 + tmp_value_143
+cnt := tmp_value_141
 GOTO L0
 LABEL L2 :
-t38 := #1
-t37 := #0 - t38
-RETURN t37
-FUNCTION dist :
-PARAM dip1
-PARAM dip2
-t41 := dip1
-t42 := dip2
-ARG t42
-ARG t41
-t40 := CALL dot
-ARG t40
-t39 := CALL sqrt
-RETURN t39
-FUNCTION main :
-DEC t43 120
-bodies := &t43
-o_cnt := #0
-i_cnt := #0
-LABEL L10 :
-t44 := o_cnt
-t45 := #3
-IF t44 < t45 GOTO L11
-GOTO L12
-LABEL L11 :
-t46 := #0
-i_cnt := t46
-LABEL L13 :
-t47 := i_cnt
-t48 := #3
-IF t47 < t48 GOTO L14
-GOTO L15
-LABEL L14 :
-t52 := i_cnt
-t53 := o_cnt
-t50 := t52 * t53
-t51 := i_cnt
-t49 := t50 + t51
-t54 := bodies
-t55 := o_cnt
-t56 := t55 * #40
-t54 := t54 + t56
-t57 := t54 + #4
-t58 := i_cnt
-t59 := t58 * #12
-t57 := t57 + t59
-t60 := t57 + #0
-*t60 := t49
-t66 := i_cnt
-t67 := o_cnt
-t64 := t66 * t67
-t65 := o_cnt
-t62 := t64 * t65
-t63 := i_cnt
-t61 := t62 + t63
-t68 := bodies
-t69 := o_cnt
-t70 := t69 * #40
-t68 := t68 + t70
-t71 := t68 + #4
-t72 := i_cnt
-t73 := t72 * #12
-t71 := t71 + t73
-t74 := t71 + #4
-*t74 := t61
-t82 := i_cnt
-t83 := i_cnt
-t80 := t82 * t83
-t81 := o_cnt
-t78 := t80 * t81
-t79 := o_cnt
-t76 := t78 * t79
-t77 := i_cnt
-t75 := t76 + t77
-t84 := bodies
-t85 := o_cnt
-t86 := t85 * #40
-t84 := t84 + t86
-t87 := t84 + #4
-t88 := i_cnt
-t89 := t88 * #12
-t87 := t87 + t89
-t90 := t87 + #8
-*t90 := t75
-t92 := i_cnt
-t93 := #1
-t91 := t92 + t93
-i_cnt := t91
-GOTO L13
-LABEL L15 :
-t96 := bodies
-t97 := o_cnt
-t98 := t97 * #40
-t96 := t96 + t98
-t99 := t96 + #4
-t100 := #1
-t101 := t100 * #12
-t99 := t99 + t101
-t95 := *t99
-t103 := bodies
-t104 := o_cnt
-t105 := t104 * #40
-t103 := t103 + t105
-t106 := t103 + #4
-t107 := #2
-t108 := t107 * #12
-t106 := t106 + t108
-t102 := *t106
-ARG t102
-ARG t95
-t94 := CALL dist
-t109 := bodies
-t110 := o_cnt
-t111 := t110 * #40
-t109 := t109 + t111
-t112 := t109 + #0
-*t112 := t94
-t114 := o_cnt
-t115 := #1
-t113 := t114 + t115
-o_cnt := t113
+tmp_value_144 := #0
+cnt := tmp_value_144
+LABEL L3 :
+tmp_value_145 := cnt
+tmp_value_146 := #100
+IF tmp_value_145 < tmp_value_146 GOTO L4
+GOTO L5
+LABEL L4 :
+tmp_value_147 := i
+tmp_value_148 := brray
+tmp_value_150 := cnt
+tmp_value_151 := len
+ARG tmp_value_151
+ARG tmp_value_150
+tmp_value_149 := CALL mod
+tmp_value_152 := tmp_value_149 * #4
+tmp_value_148 := tmp_value_148 + tmp_value_152
+*tmp_value_148 := tmp_value_147
+tmp_value_154 := i
+tmp_value_155 := #1
+tmp_value_153 := tmp_value_154 + tmp_value_155
+i := tmp_value_153
+tmp_value_157 := cnt
+tmp_value_158 := #1
+tmp_value_156 := tmp_value_157 + tmp_value_158
+cnt := tmp_value_156
+GOTO L3
+LABEL L5 :
+tmp_value_159 := #0
+cnt := tmp_value_159
+LABEL L6 :
+tmp_value_160 := cnt
+tmp_value_163 := #10
+ARG tmp_value_163
+tmp_value_162 := CALL do_work
+tmp_value_164 := #30
+ARG tmp_value_164
+ARG tmp_value_162
+tmp_value_161 := CALL mod
+IF tmp_value_160 < tmp_value_161 GOTO L7
+GOTO L8
+LABEL L7 :
+tmp_value_166 := array
+tmp_value_168 := cnt
+tmp_value_169 := len
+ARG tmp_value_169
+ARG tmp_value_168
+tmp_value_167 := CALL mod
+tmp_value_170 := tmp_value_167 * #4
+tmp_value_166 := tmp_value_166 + tmp_value_170
+tmp_value_165 := *tmp_value_166
+j := tmp_value_165
+tmp_value_174 := sum
+tmp_value_178 := #1
+tmp_value_176 := #0 - tmp_value_178
+tmp_value_177 := cnt
+tmp_value_175 := tmp_value_176 * tmp_value_177
+tmp_value_172 := tmp_value_174 + tmp_value_175
+tmp_value_179 := j
+ARG tmp_value_179
+tmp_value_173 := CALL do_work
+tmp_value_171 := tmp_value_172 + tmp_value_173
+sum := tmp_value_171
+tmp_value_181 := j
+tmp_value_183 := #2
+tmp_value_184 := cnt
+tmp_value_182 := tmp_value_183 * tmp_value_184
+tmp_value_180 := tmp_value_181 + tmp_value_182
+j := tmp_value_180
+tmp_value_186 := j
+tmp_value_188 := #2
+tmp_value_189 := cnt
+tmp_value_187 := tmp_value_188 * tmp_value_189
+tmp_value_185 := tmp_value_186 + tmp_value_187
+j := tmp_value_185
+tmp_value_191 := j
+tmp_value_193 := #2
+tmp_value_194 := cnt
+tmp_value_192 := tmp_value_193 * tmp_value_194
+tmp_value_190 := tmp_value_191 + tmp_value_192
+j := tmp_value_190
+tmp_value_198 := #10
+ARG tmp_value_198
+tmp_value_197 := CALL do_work
+tmp_value_199 := #10
+ARG tmp_value_199
+ARG tmp_value_197
+tmp_value_195 := CALL mod
+tmp_value_201 := j
+ARG tmp_value_201
+tmp_value_200 := CALL do_work
+tmp_value_202 := #10
+ARG tmp_value_202
+ARG tmp_value_200
+tmp_value_196 := CALL mod
+IF tmp_value_195 == tmp_value_196 GOTO L9
 GOTO L10
-LABEL L12 :
-t121 := bodies
-t122 := #0
-t123 := t122 * #40
-t121 := t121 + t123
-t124 := t121 + #0
-t119 := *t124
-t125 := bodies
-t126 := #1
-t127 := t126 * #40
-t125 := t125 + t127
-t128 := t125 + #0
-t120 := *t128
-t117 := t119 + t120
-t129 := bodies
-t130 := #2
-t131 := t130 * #40
-t129 := t129 + t131
-t132 := t129 + #0
-t118 := *t132
-t116 := t117 + t118
-WRITE t116
-t133 := #0
-RETURN t133
+LABEL L9 :
+tmp_value_204 := j
+tmp_value_205 := #10
+ARG tmp_value_205
+ARG tmp_value_204
+tmp_value_203 := CALL mod
+j := tmp_value_203
+GOTO L11
+LABEL L10 :
+tmp_value_207 := j
+tmp_value_208 := #20
+ARG tmp_value_208
+ARG tmp_value_207
+tmp_value_206 := CALL mod
+j := tmp_value_206
+LABEL L11 :
+tmp_value_210 := j
+tmp_value_211 := j
+tmp_value_209 := tmp_value_210 * tmp_value_211
+tmp_value_212 := array
+tmp_value_214 := cnt
+tmp_value_215 := len
+ARG tmp_value_215
+ARG tmp_value_214
+tmp_value_213 := CALL mod
+tmp_value_216 := tmp_value_213 * #4
+tmp_value_212 := tmp_value_212 + tmp_value_216
+*tmp_value_212 := tmp_value_209
+tmp_value_218 := cnt
+tmp_value_219 := #1
+tmp_value_217 := tmp_value_218 + tmp_value_219
+cnt := tmp_value_217
+GOTO L6
+LABEL L8 :
+tmp_value_223 := j
+tmp_value_225 := array
+tmp_value_226 := #0
+tmp_value_227 := tmp_value_226 * #4
+tmp_value_225 := tmp_value_225 + tmp_value_227
+tmp_value_224 := *tmp_value_225
+tmp_value_221 := tmp_value_223 + tmp_value_224
+tmp_value_228 := array
+tmp_value_229 := #1
+tmp_value_230 := tmp_value_229 * #4
+tmp_value_228 := tmp_value_228 + tmp_value_230
+tmp_value_222 := *tmp_value_228
+tmp_value_220 := tmp_value_221 + tmp_value_222
+j := tmp_value_220
+tmp_value_234 := j
+tmp_value_236 := array
+tmp_value_237 := #0
+tmp_value_238 := tmp_value_237 * #4
+tmp_value_236 := tmp_value_236 + tmp_value_238
+tmp_value_235 := *tmp_value_236
+tmp_value_232 := tmp_value_234 + tmp_value_235
+tmp_value_239 := array
+tmp_value_240 := #1
+tmp_value_241 := tmp_value_240 * #4
+tmp_value_239 := tmp_value_239 + tmp_value_241
+tmp_value_233 := *tmp_value_239
+tmp_value_231 := tmp_value_232 + tmp_value_233
+j := tmp_value_231
+tmp_value_245 := j
+tmp_value_247 := array
+tmp_value_248 := #0
+tmp_value_249 := tmp_value_248 * #4
+tmp_value_247 := tmp_value_247 + tmp_value_249
+tmp_value_246 := *tmp_value_247
+tmp_value_243 := tmp_value_245 + tmp_value_246
+tmp_value_250 := array
+tmp_value_251 := #1
+tmp_value_252 := tmp_value_251 * #4
+tmp_value_250 := tmp_value_250 + tmp_value_252
+tmp_value_244 := *tmp_value_250
+tmp_value_242 := tmp_value_243 + tmp_value_244
+j := tmp_value_242
+tmp_value_256 := j
+tmp_value_258 := array
+tmp_value_259 := #0
+tmp_value_260 := tmp_value_259 * #4
+tmp_value_258 := tmp_value_258 + tmp_value_260
+tmp_value_257 := *tmp_value_258
+tmp_value_254 := tmp_value_256 + tmp_value_257
+tmp_value_261 := array
+tmp_value_262 := #1
+tmp_value_263 := tmp_value_262 * #4
+tmp_value_261 := tmp_value_261 + tmp_value_263
+tmp_value_255 := *tmp_value_261
+tmp_value_253 := tmp_value_254 + tmp_value_255
+j := tmp_value_253
+tmp_value_264 := j
+WRITE tmp_value_264
+tmp_value_266 := array
+tmp_value_267 := #0
+tmp_value_268 := tmp_value_267 * #4
+tmp_value_266 := tmp_value_266 + tmp_value_268
+tmp_value_265 := *tmp_value_266
+WRITE tmp_value_265
+tmp_value_270 := array
+tmp_value_271 := #1
+tmp_value_272 := tmp_value_271 * #4
+tmp_value_270 := tmp_value_270 + tmp_value_272
+tmp_value_269 := *tmp_value_270
+WRITE tmp_value_269
+tmp_value_274 := array
+tmp_value_275 := #2
+tmp_value_276 := tmp_value_275 * #4
+tmp_value_274 := tmp_value_274 + tmp_value_276
+tmp_value_273 := *tmp_value_274
+WRITE tmp_value_273
+tmp_value_278 := array
+tmp_value_279 := #3
+tmp_value_280 := tmp_value_279 * #4
+tmp_value_278 := tmp_value_278 + tmp_value_280
+tmp_value_277 := *tmp_value_278
+WRITE tmp_value_277
+tmp_value_282 := array
+tmp_value_283 := #4
+tmp_value_284 := tmp_value_283 * #4
+tmp_value_282 := tmp_value_282 + tmp_value_284
+tmp_value_281 := *tmp_value_282
+WRITE tmp_value_281
+tmp_value_285 := #0
+RETURN tmp_value_285
