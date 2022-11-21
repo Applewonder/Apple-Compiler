@@ -12,6 +12,7 @@ typedef struct chain_node_* Chain_node;
 struct sym_node_{
     Type type;
     char* name;
+    int offset;
     Sym_node sym_next;
     Sym_node stack_next;
 };
@@ -42,4 +43,6 @@ void give_def(Type type, char* name);
 void final_check();
 void avail_only_for_func_stack_down();
 void recover_immediatly();
+void insert_offset(int offset, char* name);
+int find_offset(char* name);
 #endif

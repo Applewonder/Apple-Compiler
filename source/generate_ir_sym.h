@@ -78,5 +78,7 @@ void Stmt(struct ast* aim);
 void StmtList(struct ast* aim);
 void CompSt(struct ast* aim);
 ParamList Args(struct ast* aim);
-
+int calculate_sym_type_size(Type type);
+int calculate_sym_stru_size(FieldList field, int size);
+int calculate_sym_array_size(Type type);
 #endif

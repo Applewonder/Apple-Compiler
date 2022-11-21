@@ -1,44 +1,50 @@
-int get_max(int max_arr[4]) {
-  int max_idx = 0;
-  int max_val = max_arr[0];
+struct Point {
+  int x;
+  int y;
+  int z;
+};
 
-  int max_len = 4;
-  int max_cnt = 0;
-  while (max_cnt < max_len) {
-    if (max_arr[max_cnt] > max_val) {
-      max_idx = max_cnt;
-      max_val = max_arr[max_cnt];
-    }
-    max_cnt = max_cnt + 1;
-  }
-  return max_idx;
+struct Body {
+  int tag;
+  struct Point points[3];
+};
+
+int dot(struct Point dp1, struct Point dp2) {
+  return dp1.x * dp2.x + dp1.y * dp2.y + dp1.z * dp2.z;
 }
 
-int mod(int m1, int m2) {
-  return m1 - (m1 / m2) * m2;
+int sqrt(int si) {
+  int s_cnt = 0;
+  while (s_cnt <= si) {
+    int lower = s_cnt * s_cnt;
+    int upper = (s_cnt + 1) * (s_cnt + 1);
+    if ((si >= lower) && (si < upper)) {
+      return s_cnt;
+    }
+    s_cnt = s_cnt + 1;
+  }
+  return -1;
+}
+
+int dist(struct Point dip1, struct Point dip2) {
+  return sqrt(dot(dip1, dip2));
 }
 
 int main() {
-  int len = 4;
-  int val_arr[4][4];
-  int res_arr[4];
-  int copy_arr[2];
+  struct Body bodies[3];
   int o_cnt = 0;
   int i_cnt = 0;
-
-  o_cnt = 0;
-  while (o_cnt < len) {
+  while (o_cnt < 3) {
     i_cnt = 0;
-    while (i_cnt < len) {
-      val_arr[o_cnt][i_cnt] = mod(o_cnt + i_cnt, len);
+    while (i_cnt < 3) {
+      bodies[o_cnt].points[i_cnt].x = i_cnt * o_cnt + i_cnt;
+      bodies[o_cnt].points[i_cnt].y = i_cnt * o_cnt * o_cnt + i_cnt;
+      bodies[o_cnt].points[i_cnt].z = i_cnt * i_cnt * o_cnt * o_cnt + i_cnt;
       i_cnt = i_cnt + 1;
     }
-    res_arr[o_cnt] = get_max(val_arr[o_cnt]);
+    bodies[o_cnt].tag = dist(bodies[o_cnt].points[1], bodies[o_cnt].points[2]);
     o_cnt = o_cnt + 1;
   }
-
-  copy_arr = res_arr;
-  write(copy_arr[0]);
-  write(copy_arr[1]);
+  write(bodies[0].tag + bodies[1].tag + bodies[2].tag);
   return 0;
 }

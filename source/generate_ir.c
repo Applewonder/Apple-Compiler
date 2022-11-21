@@ -18,6 +18,7 @@ extern FILE* out_file;
 static int count_tmp = 0;
 static int count_label = 0;
 static char* tmp_exp_array_name = NULL;
+static char* tmp_exp_struc_name = NULL;
 
 char* print_operand(Operand ope, bool is_dec) {
     int kind = ope->kind;
@@ -227,9 +228,6 @@ char* new_label(int count) {
  
 char* find_array_name(struct ast* vardec) {
     struct ast* fir = vardec->left;
-    if (!strcmp(fir->right->token_name, "DOT")) {
-        return NULL;
-    }
     if (!strcmp(fir->token_name, "ID")) {
         return fir->name;
     } else {
@@ -273,6 +271,15 @@ int calculate_type_size(Type type) {
     }
 }
 
+void calculate_struc_mem_start(struct ast* exp) {
+    if (!strcmp(exp->left->token_name, "ID")) {
+        tmp_exp_struc_name = exp->left->name;
+    } else if (!strcmp(exp->left->right->token_name, "LB")) {
+        calculate_array_elem_size(exp->left);
+        tmp_exp_struc_name = tmp_exp_array_name;
+    }
+}
+
 Type calculate_array_elem_size(struct ast* exp) {
     Type type = NULL;
     struct ast* num = NULL;
@@ -287,14 +294,26 @@ Type calculate_array_elem_size(struct ast* exp) {
             insert_inter_code(ir_pass_addr);
             type = arr_node->type;
         } else {
-            Sym_node arr_node = find (exp->left->right->right->name, false);
+            // Sym_node arr_node = find (exp->left->right->right->name, false);
+            // char* tmp_name = new_temp(count_tmp ++);
+            // tmp_exp_array_name = tmp_name;
+            // Operand tmp = construct_var_name(tmp_name);
+            // Operand addr_ar = construct_var_name(arr_node->name);
+            // InterCodes ir_pass_addr = construct_inter_code_assign(tmp, addr_ar);
+            // insert_inter_code(ir_pass_addr);
+            // type = arr_node->type;
+            calculate_struc_mem_start(exp->left);
+            struct ast* offset = exp->left->right->right;
+            char* id_off = offset->name;
+            int offs = find_offset(id_off);
+            Operand const_num = construct_const(offs);
             char* tmp_name = new_temp(count_tmp ++);
             tmp_exp_array_name = tmp_name;
             Operand tmp = construct_var_name(tmp_name);
-            Operand addr_ar = construct_var_name(arr_node->name);
-            InterCodes ir_pass_addr = construct_inter_code_assign(tmp, addr_ar);
+            Operand struc_node = construct_var_name(tmp_exp_struc_name);
+            InterCodes ir_pass_addr = construct_inter_code_binop(ADD, tmp, struc_node, const_num);
             insert_inter_code(ir_pass_addr);
-            type = arr_node->type;
+            type = find(id_off, false)->type;
         }   
     } else {
         type = calculate_array_elem_size(exp->left);
@@ -315,28 +334,26 @@ Type calculate_array_elem_size(struct ast* exp) {
     return type->u.array.elem;
 }
 
-void translate_array(struct ast* vardec) {
+char* translate_array(struct ast* vardec) {
     char* array_name = find_array_name(vardec);
-    if (array_name == NULL) {
-
-    } else {
-        Sym_node array_node = find(array_name, false);
-        int size = 1;
-        Type array_t = array_node->type;
-        while (array_t->kind == T_AR) {
-            size *= array_t->u.array.size;
-            array_t = array_t->u.array.elem;
-        }
-        size *= calculate_type_size(array_t);
-        Operand array_size = construct_const(size);
-        Operand array_var = construct_var_name(array_name);
-        char* t_1 = new_temp(count_tmp ++);
-        Operand tmp = construct_var_name(t_1);
-        InterCodes ir_space = construct_inter_code_dec(tmp, array_size);
-        insert_inter_code(ir_space);
-        InterCodes ir_array = construct_inter_code_get_address(array_var, tmp);
-        insert_inter_code(ir_array);
+    
+    Sym_node array_node = find(array_name, false);
+    int size = 1;
+    Type array_t = array_node->type;
+    while (array_t->kind == T_AR) {
+        size *= array_t->u.array.size;
+        array_t = array_t->u.array.elem;
     }
+    size *= calculate_type_size(array_t);
+    Operand array_size = construct_const(size);
+    Operand array_var = construct_var_name(array_name);
+    char* t_1 = new_temp(count_tmp ++);
+    Operand tmp = construct_var_name(t_1);
+    InterCodes ir_space = construct_inter_code_dec(tmp, array_size);
+    insert_inter_code(ir_space);
+    InterCodes ir_array = construct_inter_code_get_address(array_var, tmp);
+    insert_inter_code(ir_array);
+    return array_name;
 }
 
 char* translate_VarDec(struct ast* vardec) {
@@ -344,8 +361,22 @@ char* translate_VarDec(struct ast* vardec) {
     if (!strcmp(fir->token_name, "ID")) {
         return fir->name;
     } else {
-        translate_array(vardec);
-        return NULL;
+        return translate_array(vardec);
+        
+    }
+}
+
+void translate_struct_inside_struct(int start, Type type) {
+    FieldList field = type->u.structure;
+    int offset = start;
+    while (field != NULL) {
+        insert_offset(offset, field->name);
+        if (field->type->kind == T_STRU) {
+            translate_struct_inside_struct(offset, field->type);
+        }
+        int mem_size = calculate_type_size(field->type);
+        offset += mem_size;
+        field = field->basic_tail;
     }
 }
 
@@ -370,11 +401,11 @@ void translate_Dec(struct ast* dec) {
             FieldList field = struct_node->type->u.structure;
             int offset = 0;
             while (field != NULL) {
-                InterCodes ir_field = cons
-                
-                
+                insert_offset(offset, field->name);
+                if (field->type->kind == T_STRU) {
+                    translate_struct_inside_struct(offset, field->type);
+                }
                 int mem_size = calculate_type_size(field->type);
-                Operand m_size = construct_const(size);
                 offset += mem_size;
                 field = field->basic_tail;
             }
@@ -437,6 +468,7 @@ void translate_CompSt(struct ast* compst) {
 
 void translate_ExtDef(struct ast* extdef) {
     struct ast* specif = extdef->left;
+    if (!strcmp(specif->left->token_name, "StructSpecifier")) return;
     struct ast* func = specif->right;
     struct ast* compst = func->right;
     translate_FunDec(func);
@@ -548,10 +580,20 @@ void translate_Exp(struct ast* exp, char* place) {
                     InterCodes ir_place = construct_inter_code_assign_address(place_var, assign_var);
                     insert_inter_code(ir_place);
                 } else {
-                    
+                    Operand tmp_var = construct_var_name(t_1);
+                    calculate_struc_mem_start(fir->left);
+                    Operand base = construct_var_name(tmp_exp_struc_name);
+                    struct ast* id = fir->left->right->right;
+                    int offs = find_offset(id->name);
+                    Operand id_s = construct_const(offs);
+                    char* t_2 = new_temp(count_tmp ++);
+                    Operand tmp_2 = construct_var_name(t_2);
+                    InterCodes ir_addr = construct_inter_code_binop(ADD, tmp_2, base, id_s);
+                    insert_inter_code(ir_addr);
+                    InterCodes ir_var = construct_inter_code_mem(tmp_2, tmp_var);
+                    insert_inter_code(ir_var);
                 }
-            }
-            
+            }    
         } else if (!strcmp(op->token_name, "PLUS")) {
             struct ast* sec = op->right;
             char* t_1 = new_temp(count_tmp ++);
@@ -625,7 +667,16 @@ void translate_Exp(struct ast* exp, char* place) {
                 insert_inter_code(ir_addr);
             }
         } else if (!strcmp(op->token_name, "DOT")) {
-            //TODO
+            calculate_struc_mem_start(fir);
+            Operand place_var = construct_var_name(place);
+            Operand id_s = construct_const(find_offset(op->right->name));
+            Operand base = construct_var_name(tmp_exp_struc_name);
+            char* t_3 = new_temp(count_tmp ++);
+            Operand tmp_3 = construct_var_name(t_3);
+            InterCodes ir_base = construct_inter_code_binop(ADD, tmp_3, base, id_s);
+            insert_inter_code(ir_base);
+            InterCodes ir_addr = construct_inter_code_assign_address(place_var, tmp_3);
+            insert_inter_code(ir_addr);
         }
     } else if (!strcmp(fir->token_name, "MINUS")) {
         char* t_1 = new_temp(count_tmp ++);

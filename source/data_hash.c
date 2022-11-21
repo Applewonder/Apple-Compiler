@@ -274,6 +274,7 @@ bool stack_insert(Type type, char* name) {
     Sym_node s_node = (Sym_node)malloc(sizeof(struct sym_node_));
     s_node->type = type;
     s_node->name = name;
+    s_node->offset = -1;
     s_node->stack_next = STACK.stack[STACK.top];
     STACK.stack[STACK.top] = s_node;
     insert(s_node);
@@ -376,3 +377,12 @@ void final_check() {
     }
 }
 
+void insert_offset(int offset, char* name) {
+    Sym_node search = find(name, false);
+    search->offset = offset;
+}
+
+int find_offset(char* name) {
+    Sym_node search = find(name, false);
+    return search->offset;
+}

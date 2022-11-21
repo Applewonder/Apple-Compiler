@@ -10,7 +10,7 @@ void print_ir(InterCodes cur);
 char* new_temp(int count);
 char* new_label(int count);
 char* find_array_name(struct ast* vardec);
-void translate_array(struct ast* vardec);
+char* translate_array(struct ast* vardec);
 char* translate_VarDec(struct ast* vardec);
 void translate_Dec(struct ast* dec);
 void translate_DecList(struct ast* declist);
@@ -30,5 +30,5 @@ int calculate_array_size(Type type);
 int calculate_stru_size(FieldList field, int size);
 int calculate_type_size(Type type);
 Type calculate_array_elem_size(struct ast* exp);
-
+void calculate_struc_mem_start(struct ast* exp);
 #endif

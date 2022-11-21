@@ -204,6 +204,41 @@ Type check_exp_type(struct ast* aim) {
     }
 }
 
+int calculate_sym_array_size(Type type) {
+    if (type->kind == T_AR) {
+        int size = calculate_sym_array_size(type->u.array.elem);
+        size *= type->u.array.size;
+        return size;
+    } else {
+        return calculate_sym_type_size(type);
+    }
+}
+
+int calculate_sym_stru_size(FieldList field, int size) {
+    if (field == NULL) return size;
+    int cur_size = calculate_sym_type_size(field->type);
+    cur_size += size;
+    int tail_size = calculate_sym_stru_size(field->basic_tail, cur_size);
+    return tail_size;
+}
+
+int calculate_sym_type_size(Type type) {
+    switch (type->kind)
+    {
+    case T_INT:
+    case T_FLOAT:
+        return 4;
+    case T_AR:
+        return calculate_sym_array_size(type);
+    case T_STRU:
+        return calculate_sym_stru_size(type->u.structure, 0);
+    default:
+        printf("real fun\n");
+        return -1;
+        break;
+    }
+}
+
 FieldList construct_array_node(struct ast* aim, Type type) {//the entry is: vard lb int rb
     if (!strcmp(aim->token_name, "ID")) {
         bool is_success = stack_insert(type, aim->name);
@@ -229,6 +264,7 @@ FieldList VarDec(struct ast* aim, Type type) {
     struct ast* tmp = aim->left;
     if(!strcmp(tmp->token_name, "ID")) {
         bool is_success = stack_insert(type, tmp->name);
+        
         if (!is_success) {
             if (!enter_struc) {
                 printf("Error type 3 at Line %d: hh\n", tmp->line_num);
@@ -275,6 +311,20 @@ char* Tag(struct ast* aim, Type type) {
     return name;
 }
 
+void give_offset(FieldList fields, int offset) {
+    FieldList fl = fields;
+    while (fl != NULL) {
+        Type type = fl->type;
+        if (type->kind == T_STRU) {
+            give_offset(type->u.structure, offset);
+        }
+        int size = calculate_sym_type_size(type);
+        insert_offset(offset, fl->name);
+        offset += size;
+        fl = fl->basic_tail;
+    }
+}
+
 Type StructSpecifier(struct ast* aim) {
     Type type = STRUCT();
     struct ast* tag = aim->left->right;
@@ -301,6 +351,7 @@ Type StructSpecifier(struct ast* aim) {
         //stack_pop();
         enter_struc --;
         bool is_success = stack_insert(type, name);
+        give_offset(type->u.structure, 0);
         if (!is_success) {
             printf("Error type 16 at Line %d: hh\n", aim->line_num);
         } 
@@ -313,6 +364,7 @@ Type StructSpecifier(struct ast* aim) {
         scratch(type);
         //stack_pop();
         enter_struc --;
+        give_offset(type->u.structure, 0);
         return type;
     }
     
@@ -378,6 +430,7 @@ FieldList DecList(struct ast* aim, Type type) {
 
 FieldList Def(struct ast* aim) {
     Type type = Specifier(aim->left);
+    int offset = calculate_sym_type_size(type);
     if (type == NULL) return NULL;
     FieldList cur = DecList(aim->left->right, type);
     return cur;
