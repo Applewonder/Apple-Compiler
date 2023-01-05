@@ -16,7 +16,7 @@ struct Operand_ {
         char* arg_name;
     } u;
 };
-
+ 
 struct InterCode_
 {
     enum { ASSIGN, ADD, SUB, MUL, DIV, TAG, GOTO, IF, READ, WRITE, CALL, ARG, FUNCTION, PARAM, DEC, RETURN, ADDR, MEM, GETADDR} kind;

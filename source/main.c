@@ -4,6 +4,7 @@
 #include "data_hash.h"
 #include "generate_ir.h"
 #include "ir_code.h"
+#include "generate_mips.h"
 
 extern int yyparse();
 extern int yyrestart();
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
     yyparse();
     generate_ir_sym(root, 0);
     generate_ir(root, 0);
-    print_ir(start);
+    generate_module();
     final_check();
     return 0;
 }

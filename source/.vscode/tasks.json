@@ -14,6 +14,7 @@
                 "generate_ir_sym.c",
                 "generate_ir.c",
                 "ir_code.c",
+                "generate_mips.c",
                 "-ll",
                 "-ly",
                 "-o",
