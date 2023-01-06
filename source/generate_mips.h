@@ -45,6 +45,7 @@ typedef struct Assign_Space_Op_* Assign_Space_Op;
 
 struct Op_ {
     int off_set;
+    int param_num;
     Operand origin_op;
 };
 
@@ -59,6 +60,7 @@ void generate_init();
 RegNum reg();
 void resume_regs();
 void load_from_mem(Assign_Space_Op operand, RegNum regis);
+void load_from_mem_for_arg(Assign_Space_Op operand, RegNum regis);
 void store_to_mem(RegNum regis, Assign_Space_Op operand);
 void insert_alloc_operand(Assign_Space_Op operand);
 Assign_Space_Op find_allocated(Operand op);

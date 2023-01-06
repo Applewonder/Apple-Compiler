@@ -1,319 +1,41 @@
-FUNCTION dot :
-PARAM dp1
-PARAM dp2
-
-//dp1.x * dp2.x
-t7 := dp1 + #0
-t5 := *t7
-t8 := dp2 + #0
-t6 := *t8
-t3 := t5 * t6
-
-//dp1.y * dp2.y
-t11 := dp1 + #4
-t9 := *t11
-t12 := dp2 + #4
-t10 := *t12
-t4 := t9 * t10
-
-//x + y
-t1 := t3 + t4
-
-//dp1.z * dp2.z
-t15 := dp1 + #8
-t13 := *t15
-t16 := dp2 + #8
-t14 := *t16
-t2 := t13 * t14
-
-//x + y + z
-t0 := t1 + t2
-RETURN t0
-
-FUNCTION sqrt :
-PARAM si
-s_cnt := #0
-
-//s_cnt <= si
+FUNCTION fact :
+PARAM n
+tmp_value_0 := n
+tmp_value_1 := #1
+IF tmp_value_0 == tmp_value_1 GOTO L0
+GOTO L1
 LABEL L0 :
-t17 := s_cnt
-t18 := si
-IF t17 <= t18 GOTO L1
+tmp_value_2 := n
+RETURN tmp_value_2
 GOTO L2
 LABEL L1 :
-
-//int lower = s_cnt * s_cnt;
-t19 := s_cnt
-t20 := s_cnt
-lower := t19 * t20
-
-//int upper = (s_cnt + 1) * (s_cnt + 1);
-t23 := s_cnt
-t24 := #1
-t21 := t23 + t24
-t25 := s_cnt
-t26 := #1
-t22 := t25 + t26
-upper := t21 * t22
-
-
-t27 := #0
-t28 := si
-t29 := lower
-IF t28 >= t29 GOTO L6
-GOTO L7
-LABEL L6 :
-t27 := #1
-LABEL L7 :
-IF t27 != #0 GOTO L5
-GOTO L4
-LABEL L5 :
-t30 := #0
-t31 := si
-t32 := upper
-IF t31 < t32 GOTO L8
-GOTO L9
-LABEL L8 :
-t30 := #1
-LABEL L9 :
-IF t30 != #0 GOTO L3
+tmp_value_4 := n
+tmp_value_7 := n
+tmp_value_8 := #1
+tmp_value_6 := tmp_value_7 - tmp_value_8
+ARG tmp_value_6
+tmp_value_5 := CALL fact
+tmp_value_3 := tmp_value_4 * tmp_value_5
+RETURN tmp_value_3
+LABEL L2 :
+FUNCTION main :
+READ tmp_value_9
+m := tmp_value_9
+tmp_value_10 := m
+tmp_value_11 := #1
+IF tmp_value_10 > tmp_value_11 GOTO L3
 GOTO L4
 LABEL L3 :
-t33 := s_cnt
-RETURN 
-
+tmp_value_13 := m
+ARG tmp_value_13
+tmp_value_12 := CALL fact
+result := tmp_value_12
+GOTO L5
 LABEL L4 :
-t35 := s_cnt
-t36 := #1
-t34 := t35 + t36
-s_cnt := t34
-GOTO L0
-
-//return -1;
-LABEL L2 :
-t38 := #1
-t37 := #0 - t38
-RETURN t37
-
-FUNCTION dist :
-PARAM dip1
-PARAM dip2
-t41 := dip1
-t42 := dip2
-ARG t42
-ARG t41
-t40 := CALL dot
-ARG t40
-t39 := CALL sqrt
-RETURN t39
-
-FUNCTION main :
-
-//struct Body bodies[3];
-DEC t43 120
-bodies := &t43
-
-//int o_cnt = 0;
-//int i_cnt = 0;
-o_cnt := #0
-i_cnt := #0
-
-LABEL L10 :
-t44 := o_cnt
-t45 := #3
-IF t44 < t45 GOTO L11
-GOTO L12
-LABEL L11 :
-
-//i_cnt = 0;
-t46 := #0
-i_cnt := t46
-
-//while (i_cnt < 3)
-LABEL L13 :
-t47 := i_cnt
-t48 := #3
-IF t47 < t48 GOTO L14
-GOTO L15
-
-LABEL L14 :
-
-//i_cnt * o_cnt
-t52 := i_cnt
-t53 := o_cnt
-t50 := t52 * t53
-
-//i_cnt * o_cnt + i_cnt
-t51 := i_cnt
-t49 := t50 + t51
-
-//bodies[o_cnt]
-t54 := bodies
-t55 := o_cnt
-t56 := t55 * #40
-t54 := t54 + t56
-
-//points[i_cnt]
-t57 := t54 + #4
-t58 := i_cnt
-t59 := t58 * #12
-t57 := t57 + t59
-
-//.x
-t60 := t57 + #0
-
-//x=
-*t60 := t49
-
-//i_cnt * o_cnt
-t66 := i_cnt
-t67 := o_cnt
-t64 := t66 * t67
-
-//i_cnt * o_cnt * o_cnt
-t65 := o_cnt
-t62 := t64 * t65
-
-//i_cnt * o_cnt * o_cnt + i_cnt
-t63 := i_cnt
-t61 := t62 + t63
-
-//bodies[o_cnt]
-t68 := bodies
-t69 := o_cnt
-t70 := t69 * #40
-t68 := t68 + t70
-
-//points[i_cnt]
-t71 := t68 + #4
-t72 := i_cnt
-t73 := t72 * #12
-t71 := t71 + t73
-
-//.y
-t74 := t71 + #4
-
-//y=
-*t74 := t61
-
-//i_cnt * i_cnt * o_cnt * o_cnt + i_cnt
-t82 := i_cnt
-t83 := i_cnt
-t80 := t82 * t83
-t81 := o_cnt
-t78 := t80 * t81
-t79 := o_cnt
-t76 := t78 * t79
-t77 := i_cnt
-t75 := t76 + t77
-
-//bodies[o_cnt]
-t84 := bodies
-t85 := o_cnt
-t86 := t85 * #40
-t84 := t84 + t86
-
-//points[i_cnt]
-t87 := t84 + #4
-t88 := i_cnt
-t89 := t88 * #12
-t87 := t87 + t89
-
-//.z
-t90 := t87 + #8
-
-//z=
-*t90 := t75
-
-//i_cnt = i_cnt + 1;
-t92 := i_cnt
-t93 := #1
-t91 := t92 + t93
-i_cnt := t91
-
-
-GOTO L13
-LABEL L15 :
-
-//bodies[o_cnt]
-t96 := bodies
-t97 := o_cnt
-t98 := t97 * #40
-t96 := t96 + t98
-
-//points[1]
-t99 := t96 + #4
-t100 := #1
-t101 := t100 * #12
-t99 := t99 + t101
-
-t95 := *t99
-
-//bodies[o_cnt]
-t103 := bodies
-t104 := o_cnt
-t105 := t104 * #40
-t103 := t103 + t105
-
-//points[2]
-t106 := t103 + #4
-t107 := #2
-t108 := t107 * #12
-t106 := t106 + t108
-
-t102 := *t106
-ARG t102
-ARG t95
-t94 := CALL dist
-
-//bodies[o_cnt].tag
-t109 := bodies
-t110 := o_cnt
-t111 := t110 * #40
-t109 := t109 + t111
-t112 := t109 + #0
-
-//=
-*t112 := t94
-
-//o_cnt = o_cnt + 1;
-t114 := o_cnt
-t115 := #1
-t113 := t114 + t115
-o_cnt := t113
-
-
-GOTO L10
-LABEL L12 :
-
-//bodies[0].tag
-t121 := bodies
-t122 := #0
-t123 := t122 * #40
-t121 := t121 + t123
-t124 := t121 + #0
-t119 := *t124
-
-//bodies[1].tag
-t125 := bodies
-t126 := #1
-t127 := t126 * #40
-t125 := t125 + t127
-t128 := t125 + #0
-t120 := *t128
-
-//bodies[0].tag + bodies[1].tag
-t117 := t119 + t120
-
-//bodies[2].tag
-t129 := bodies
-t130 := #2
-t131 := t130 * #40
-t129 := t129 + t131
-t132 := t129 + #0
-t118 := *t132
-t116 := t117 + t118
-
-WRITE t116
-t133 := #0
-RETURN t133
+tmp_value_14 := #1
+result := tmp_value_14
+LABEL L5 :
+tmp_value_15 := result
+WRITE tmp_value_15
+tmp_value_16 := #0
+RETURN tmp_value_16

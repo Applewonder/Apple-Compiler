@@ -11,7 +11,6 @@ int t1_ocupy = 0;
 int t2_occupy = 0;
 int t3_occupy = 0;
 int f_offset = 0;
-int arguement_num = 0;
 
 char* regnam[] = {
     "$zero",
@@ -106,6 +105,17 @@ void load_from_mem(Assign_Space_Op operand, RegNum regis) {
     fprintf(out_file, "\tlw %s, %d($sp)\n", regnam[regis], offset);
 }
 
+void load_from_mem_for_arg(Assign_Space_Op operand, RegNum regis) {
+    int offset = operand->operand->off_set;
+    int param_offset = 0;
+    if (operand->is_param) {
+        param_offset = f_offset + 4;
+    } 
+    offset += param_offset;
+    offset += 4;
+    fprintf(out_file, "\tlw %s, %d($sp)\n", regnam[regis], offset);
+}
+
 void store_to_mem(RegNum regis, Assign_Space_Op operand) {
     int offset = operand->operand->off_set;
     int param_offset = 0;
@@ -154,7 +164,7 @@ Assign_Space_Op construct_operand_need_alloc(Operand origin_op, int offset, bool
 void generate_read_mips(Assign_Space_Op dest, RegNum dest_reg) {
     int offset = dest->operand->off_set;
     int param_offset = 0;
-    if (!dest->is_param) {
+    if (dest->is_param) {
         param_offset = f_offset;
     } 
     offset += param_offset;
@@ -179,6 +189,7 @@ void malloc_op() {
     InterCodes ir = start;
     int offset = 0;
     Operand func = NULL;
+    int func_param_num = 0;
     while (ir != NULL) {
         switch (ir->code->kind)
         {
@@ -186,6 +197,10 @@ void malloc_op() {
         {
             // Operand right = ir->code->u.assign.right;
             Operand left = ir->code->u.assign.left;
+            Operand right = ir->code->u.assign.right;
+            char* left_nam = print_operand(left, false);
+            char* right_nam = print_operand(right, false);
+            if (left_nam == NULL || right_nam == NULL) break;
             // if (right->kind != CONSTANT) {
             //     if (find_allocated(right) == NULL) {
             //         Assign_Space_Op need_alloc = construct_operand_need_alloc(right, offset);
@@ -260,8 +275,11 @@ void malloc_op() {
                 func = ir->code->u.func;
             } else {
                 Assign_Space_Op need_alloc = construct_operand_need_alloc(func, offset, false);
+                need_alloc->operand->param_num = func_param_num;
                 insert_alloc_operand(need_alloc);
+                func = ir->code->u.func;
             }
+            func_param_num = 0;
             offset = 0;
             break;
         }
@@ -281,6 +299,10 @@ void malloc_op() {
         case ADDR:
         {
             Operand dest = ir->code->u.addr.dest;
+            Operand src = ir->code->u.addr.src;
+            char* left_nam = print_operand(dest, false);
+            char* right_nam = print_operand(src, false);
+            if (left_nam == NULL || right_nam == NULL) break;
             if (dest->kind != CONSTANT) {
                 if (find_allocated(dest) == NULL) {
                     Assign_Space_Op need_alloc = construct_operand_need_alloc(dest, offset, false);
@@ -293,6 +315,10 @@ void malloc_op() {
         case GETADDR:
         {
             Operand dest = ir->code->u.get_addr.dest;
+            Operand src = ir->code->u.get_addr.src;
+            char* left_nam = print_operand(dest, false);
+            char* right_nam = print_operand(src, false);
+            if (left_nam == NULL || right_nam == NULL) break;
             if (dest->kind != CONSTANT) {
                 if (find_allocated(dest) == NULL) {
                     Assign_Space_Op need_alloc = construct_operand_need_alloc(dest, offset, false);
@@ -313,6 +339,7 @@ void malloc_op() {
             Assign_Space_Op need_alloc = construct_operand_need_alloc(dest, f_offset, true);
             insert_alloc_operand(need_alloc);
             f_offset += 4;
+            func_param_num += 1;
         }
         case ARG:
         case TAG:
@@ -329,6 +356,7 @@ void malloc_op() {
         ir = ir->next;
     }
     Assign_Space_Op need_alloc = construct_operand_need_alloc(func, offset, false);
+    need_alloc->operand->param_num = func_param_num;
     insert_alloc_operand(need_alloc);
 }
 
@@ -339,6 +367,9 @@ void generate_intercode_mips(InterCode ir) {
     case ASSIGN: {
         Operand right = ir->u.assign.right;
         Operand left = ir->u.assign.left;
+        char* left_nam = print_operand(left, false);
+        char* right_nam = print_operand(right, false);
+        if (left_nam == NULL || right_nam == NULL) break;
         Assign_Space_Op left_op = find_allocated(left);
         if (right->kind == CONSTANT) {
             int const_num = right->u.value;
@@ -406,13 +437,14 @@ void generate_intercode_mips(InterCode ir) {
     }
     case CALL:
     {
+        begin_arg = false;
         Operand call_r = ir->u.callf.res;
         Operand call_f = ir->u.callf.function;
-        fprintf(out_file, "\tjal %s", call_f->u.f_name);
+        fprintf(out_file, "\tjal %s\n", call_f->u.f_name);
         Assign_Space_Op res_op = find_allocated(call_r);
-        store_to_mem(V0, res_op);
         fprintf(out_file, "\tlw $ra, 0($sp)\n");
         fprintf(out_file, "\taddi $sp, $sp, 4\n");
+        store_to_mem(V0, res_op);
         resume_regs();
         break;
     }
@@ -421,7 +453,7 @@ void generate_intercode_mips(InterCode ir) {
         Operand func_op = ir->u.func;
         Assign_Space_Op func_alloc = find_allocated(func_op);
         RegNum sp_reg = reg();
-        int arg_offset = arguement_num * 4;
+        int arg_offset = func_alloc->operand->param_num * 4;
         fprintf(out_file, "%s:\n", func_op->u.f_name);
         fprintf(out_file, "\taddi %s, $sp, %d\n", regnam[sp_reg], arg_offset);
         fprintf(out_file, "\taddi $sp, $sp, -4\n");
@@ -439,6 +471,9 @@ void generate_intercode_mips(InterCode ir) {
     {
         Operand dest = ir->u.addr.dest;
         Operand src = ir->u.addr.src;
+        char* left_nam = print_operand(dest, false);
+        char* right_nam = print_operand(src, false);
+        if (left_nam == NULL || right_nam == NULL) break;
         Assign_Space_Op dest_op = find_allocated(dest);
         Assign_Space_Op src_op = find_allocated(src);
         RegNum dest_reg = reg();
@@ -453,6 +488,9 @@ void generate_intercode_mips(InterCode ir) {
     {
         Operand dest = ir->u.get_addr.dest;
         Operand src = ir->u.get_addr.src;
+        char* left_nam = print_operand(dest, false);
+        char* right_nam = print_operand(src, false);
+        if (left_nam == NULL || right_nam == NULL) break;
         Assign_Space_Op dest_op = find_allocated(dest);
         Assign_Space_Op src_op = find_allocated(src);
         RegNum dest_reg = reg();
@@ -468,6 +506,9 @@ void generate_intercode_mips(InterCode ir) {
     {
         Operand dest = ir->u.mem.dest;
         Operand src = ir->u.mem.src;
+        char* left_nam = print_operand(dest, false);
+        char* right_nam = print_operand(src, false);
+        if (left_nam == NULL || right_nam == NULL) break;
         Assign_Space_Op dest_op = find_allocated(dest);
         Assign_Space_Op src_op = find_allocated(src);
         RegNum dest_reg = reg();
@@ -486,8 +527,6 @@ void generate_intercode_mips(InterCode ir) {
         RegNum sp_reg = reg();
         fprintf(out_file, "\tlw %s, %d($sp)\n", regnam[sp_reg], f_offset);
         fprintf(out_file, "\tmove $sp, %s\n", regnam[sp_reg]);
-        f_offset = 0;
-        arguement_num = 0;
         fprintf(out_file, "\tjr $ra\n");
         fprintf(out_file, "\n");
         resume_regs();
@@ -504,12 +543,11 @@ void generate_intercode_mips(InterCode ir) {
             fprintf(out_file, "\tsw $ra, 0($sp)\n");
             begin_arg = true;
         }
-        f_offset += 4;
-        arguement_num += 1;
+        
         Operand arg_op = ir->u.arg;
         Assign_Space_Op var_op = find_allocated(arg_op);
         RegNum arg_reg = reg();
-        load_from_mem(var_op, arg_reg);
+        load_from_mem_for_arg(var_op, arg_reg);
         fprintf(out_file, "\taddi $sp, $sp, -4\n");
         fprintf(out_file, "\tsw %s, 0($sp)\n", regnam[arg_reg]);
         resume_regs();
@@ -524,7 +562,7 @@ void generate_intercode_mips(InterCode ir) {
     case GOTO:
     {
         Operand label = ir->u.label;
-        fprintf(out_file, "\tj %s:\n", label->u.var_name);
+        fprintf(out_file, "\tj %s\n", label->u.var_name);
         break;
     }
     case IF:
