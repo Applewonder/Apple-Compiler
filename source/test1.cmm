@@ -1,41 +1,18 @@
-FUNCTION fact :
-PARAM n
-tmp_value_0 := n
-tmp_value_1 := #1
-IF tmp_value_0 == tmp_value_1 GOTO L0
-GOTO L1
-LABEL L0 :
-tmp_value_2 := n
-RETURN tmp_value_2
-GOTO L2
-LABEL L1 :
-tmp_value_4 := n
-tmp_value_7 := n
-tmp_value_8 := #1
-tmp_value_6 := tmp_value_7 - tmp_value_8
-ARG tmp_value_6
-tmp_value_5 := CALL fact
-tmp_value_3 := tmp_value_4 * tmp_value_5
-RETURN tmp_value_3
-LABEL L2 :
+FUNCTION func :
+PARAM a
+PARAM b
+tmp_value_1 := a
+tmp_value_2 := b
+tmp_value_0 := tmp_value_1 + tmp_value_2
+RETURN tmp_value_0
 FUNCTION main :
-READ tmp_value_9
-m := tmp_value_9
-tmp_value_10 := m
-tmp_value_11 := #1
-IF tmp_value_10 > tmp_value_11 GOTO L3
-GOTO L4
-LABEL L3 :
-tmp_value_13 := m
-ARG tmp_value_13
-tmp_value_12 := CALL fact
-result := tmp_value_12
-GOTO L5
-LABEL L4 :
-tmp_value_14 := #1
-result := tmp_value_14
-LABEL L5 :
-tmp_value_15 := result
-WRITE tmp_value_15
-tmp_value_16 := #0
-RETURN tmp_value_16
+tmp_value_5 := #1
+tmp_value_6 := #2
+ARG tmp_value_6
+ARG tmp_value_5
+tmp_value_4 := CALL func
+tmp_value_7 := #3
+ARG tmp_value_7
+ARG tmp_value_4
+tmp_value_3 := CALL func
+WRITE tmp_value_3

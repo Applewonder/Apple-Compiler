@@ -1,26 +1,18 @@
-FUNCTION main:
-a := #0
-b := #1
-i := #0
-READ t0
-n := t0
-LABEL: L0
-t1 := i
-t2 := n
-IF t1 < t2 GOTO L1GOTO L2
-LABEL: L1
-t3 := a
-t4 := b
-c := t3 + t4
-t5 := b
-WRITE t5
-t6 := b
-a := t6
-t7 := c
-b := t7
-t9 := i
-t10 := #1
-t8 := t9 + t10
-i := t8
-LABEL: L0
-LABEL: L2
+FUNCTION func :
+PARAM a
+PARAM b
+tmp_value_1 := a
+tmp_value_2 := b
+tmp_value_0 := tmp_value_1 + tmp_value_2
+RETURN tmp_value_0
+FUNCTION main :
+tmp_value_5 := #1
+tmp_value_6 := #2
+ARG tmp_value_6
+ARG tmp_value_5
+tmp_value_4 := CALL func
+tmp_value_7 := #3
+ARG tmp_value_7
+ARG tmp_value_4
+tmp_value_3 := CALL func
+WRITE tmp_value_3

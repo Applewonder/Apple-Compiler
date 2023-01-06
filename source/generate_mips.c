@@ -7,6 +7,7 @@ extern FILE *out_file;
 Assign_Space_Op begin_alloc;
 Assign_Space_Op end_alloc;
 bool begin_arg = 0;
+int arg_num_count = 0;
 int t1_ocupy = 0;
 int t2_occupy = 0;
 int t3_occupy = 0;
@@ -113,6 +114,7 @@ void load_from_mem_for_arg(Assign_Space_Op operand, RegNum regis) {
     } 
     offset += param_offset;
     offset += 4;
+    offset += 4 * arg_num_count;
     fprintf(out_file, "\tlw %s, %d($sp)\n", regnam[regis], offset);
 }
 
@@ -138,6 +140,7 @@ void insert_alloc_operand(Assign_Space_Op operand) {
 }
 
 Assign_Space_Op find_allocated(Operand op) {
+    if (op->kind == CONSTANT) return NULL;
     char* name = op->u.var_name;
     Assign_Space_Op ir_start = begin_alloc;
     while (ir_start != NULL) {
@@ -437,6 +440,7 @@ void generate_intercode_mips(InterCode ir) {
     }
     case CALL:
     {
+        arg_num_count = 0;
         begin_arg = false;
         Operand call_r = ir->u.callf.res;
         Operand call_f = ir->u.callf.function;
@@ -513,7 +517,12 @@ void generate_intercode_mips(InterCode ir) {
         Assign_Space_Op src_op = find_allocated(src);
         RegNum dest_reg = reg();
         RegNum src_reg = reg();
-        load_from_mem(src_op, src_reg);
+        load_from_mem(dest_op, dest_reg);
+        if (src_op == NULL) {
+            fprintf(out_file, "\tli %s, %d\n", regnam[src_reg], src->u.value);
+        } else {
+            load_from_mem(src_op, src_reg);
+        }
         load_from_mem(dest_op, dest_reg);
         fprintf(out_file, "\tsw %s, 0(%s)\n", regnam[src_reg], regnam[dest_reg]);
         resume_regs();
@@ -551,6 +560,7 @@ void generate_intercode_mips(InterCode ir) {
         fprintf(out_file, "\taddi $sp, $sp, -4\n");
         fprintf(out_file, "\tsw %s, 0($sp)\n", regnam[arg_reg]);
         resume_regs();
+        arg_num_count ++;
         break;
     }
     case TAG:
@@ -575,8 +585,16 @@ void generate_intercode_mips(InterCode ir) {
         Assign_Space_Op candidate_2_op = find_allocated(candidiate2);
         RegNum candidate1_reg = reg();
         RegNum candidate2_reg = reg();
-        load_from_mem(candidate_1_op, candidate1_reg);
-        load_from_mem(candidate_2_op, candidate2_reg);
+        if (candidiate1->kind == CONSTANT) {
+            fprintf(out_file, "\tli %s, %d\n", regnam[candidate1_reg], candidiate1->u.value);
+        } else {
+            load_from_mem(candidate_1_op, candidate1_reg);
+        }
+        if (candidiate2->kind == CONSTANT) {
+            fprintf(out_file, "\tli %s, %d\n", regnam[candidate2_reg], candidiate2->u.value);
+        } else {
+            load_from_mem(candidate_2_op, candidate2_reg);
+        }
         char* label_if = label->u.var_name;
         char* op_if = op->u.op;
         if (!strcmp(op_if, "==")) {
