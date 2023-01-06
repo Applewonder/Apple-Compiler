@@ -5,7 +5,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/apple/apple_compiler/source/print_ir",
-            "args": ["test.cmm", "f.ir"],
+            "args": ["/home/apple/apple_compiler/source/test.cmm", "./test_asm.s"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

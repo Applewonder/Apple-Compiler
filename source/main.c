@@ -74,7 +74,8 @@ int main(int argc, char *argv[]) {
     yyparse();
     generate_ir_sym(root, 0);
     generate_ir(root, 0);
-    generate_module();
+    // generate_module();
+    print_ir(start);
     final_check();
     return 0;
 }

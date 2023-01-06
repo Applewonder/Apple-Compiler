@@ -52,7 +52,7 @@ char* regnam[] = {
 void generate_init() {
     fprintf(out_file, ".data\n");
     fprintf(out_file, "_prompt: .asciiz \"Enter an integer:\"\n");
-    fprintf(out_file, "_ret: .asciiz \"\n\"\n");
+    fprintf(out_file, "_ret: .asciiz \"\\n\"\n");
     fprintf(out_file, ".globl main\n");
     fprintf(out_file, ".text\n");
     fprintf(out_file, "read:\n");
@@ -69,6 +69,7 @@ void generate_init() {
     fprintf(out_file, "\tli $v0, 4\n");
     fprintf(out_file, "\tla $a0, _ret\n");
     fprintf(out_file, "\tsyscall\n");
+    fprintf(out_file, "\tmove $v0, $0\n");
     fprintf(out_file, "\tjr $ra\n");
     fprintf(out_file, "\n");
 }
@@ -342,7 +343,6 @@ void generate_intercode_mips(InterCode ir) {
         if (right->kind == CONSTANT) {
             int const_num = right->u.value;
             RegNum the_reg = reg();
-            load_from_mem(left_op, the_reg);
             fprintf(out_file, "\tli %s, %d\n", regnam[the_reg], const_num);
             store_to_mem(the_reg, left_op);
             resume_regs();
@@ -351,7 +351,6 @@ void generate_intercode_mips(InterCode ir) {
             RegNum right_reg = reg();
             load_from_mem(right_op, right_reg);
             RegNum left_reg = reg();
-            load_from_mem(left_op, left_reg);
             fprintf(out_file, "\tmove %s, %s\n", regnam[left_reg], regnam[right_reg]);
             store_to_mem(left_reg, left_op);
             resume_regs();
@@ -423,12 +422,12 @@ void generate_intercode_mips(InterCode ir) {
         Assign_Space_Op func_alloc = find_allocated(func_op);
         RegNum sp_reg = reg();
         int arg_offset = arguement_num * 4;
+        fprintf(out_file, "%s:\n", func_op->u.f_name);
         fprintf(out_file, "\taddi %s, $sp, %d\n", regnam[sp_reg], arg_offset);
         fprintf(out_file, "\taddi $sp, $sp, -4\n");
         fprintf(out_file, "\tsw %s, 0($sp)\n", regnam[sp_reg]);
         f_offset = func_alloc->operand->off_set;
         fprintf(out_file, "\taddi $sp, $sp, -%d\n", f_offset);
-        fprintf(out_file, "%s:\n", func_op->u.f_name);
         resume_regs();
         break;
     }
@@ -490,6 +489,7 @@ void generate_intercode_mips(InterCode ir) {
         f_offset = 0;
         arguement_num = 0;
         fprintf(out_file, "\tjr $ra\n");
+        fprintf(out_file, "\n");
         resume_regs();
         break;
     }
