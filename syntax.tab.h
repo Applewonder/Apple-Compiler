@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_SYNTAX_TAB_H_INCLUDED
 # define YY_YY_SYNTAX_TAB_H_INCLUDED
@@ -44,48 +45,53 @@
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ASSIGNOP = 258,
-    OR = 259,
-    AND = 260,
-    GREATER = 261,
-    LESS = 262,
-    GEQ = 263,
-    LEQ = 264,
-    EQL = 265,
-    NEQ = 266,
-    MINUS = 267,
-    PLUS = 268,
-    STAR = 269,
-    DIV = 270,
-    SOLO = 271,
-    NOT = 272,
-    DOT = 273,
-    LB = 274,
-    RB = 275,
-    LP = 276,
-    RP = 277,
-    LOWER_THAN_ELSE = 278,
-    ELSE = 279,
-    INT = 280,
-    OCT = 281,
-    HEX = 282,
-    FLOAT = 283,
-    ID = 284,
-    SEMI = 285,
-    COMMA = 286,
-    TYPE = 287,
-    LC = 288,
-    RC = 289,
-    STRUCT = 290,
-    RETURN = 291,
-    IF = 292,
-    WHILE = 293
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    SOLO = 258,                    /* SOLO  */
+    LOWER_THAN_ELSE = 259,         /* LOWER_THAN_ELSE  */
+    INT = 260,                     /* INT  */
+    OCT = 261,                     /* OCT  */
+    HEX = 262,                     /* HEX  */
+    FLOAT = 263,                   /* FLOAT  */
+    ID = 264,                      /* ID  */
+    LESS = 265,                    /* LESS  */
+    GREATER = 266,                 /* GREATER  */
+    LEQ = 267,                     /* LEQ  */
+    GEQ = 268,                     /* GEQ  */
+    EQL = 269,                     /* EQL  */
+    NEQ = 270,                     /* NEQ  */
+    NOT = 271,                     /* NOT  */
+    SEMI = 272,                    /* SEMI  */
+    COMMA = 273,                   /* COMMA  */
+    ASSIGNOP = 274,                /* ASSIGNOP  */
+    PLUS = 275,                    /* PLUS  */
+    MINUS = 276,                   /* MINUS  */
+    STAR = 277,                    /* STAR  */
+    DIV = 278,                     /* DIV  */
+    AND = 279,                     /* AND  */
+    OR = 280,                      /* OR  */
+    DOT = 281,                     /* DOT  */
+    TYPE = 282,                    /* TYPE  */
+    LP = 283,                      /* LP  */
+    RP = 284,                      /* RP  */
+    LB = 285,                      /* LB  */
+    RB = 286,                      /* RB  */
+    LC = 287,                      /* LC  */
+    RC = 288,                      /* RC  */
+    STRUCT = 289,                  /* STRUCT  */
+    RETURN = 290,                  /* RETURN  */
+    IF = 291,                      /* IF  */
+    ELSE = 292,                    /* ELSE  */
+    WHILE = 293                    /* WHILE  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
@@ -96,7 +102,7 @@ union YYSTYPE
 
     struct ast* node;
 
-#line 100 "./syntax.tab.h"
+#line 106 "./syntax.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -107,6 +113,8 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
+
 int yyparse (void);
+
 
 #endif /* !YY_YY_SYNTAX_TAB_H_INCLUDED  */

@@ -9,6 +9,13 @@ Type funcret;
 bool enter_func = false;
 int enter_struc = 0;
 bool in_struc;
+int invisble_struct_count = 0;
+
+char* new_invisble_struct_name(int count) {
+    char* tmp = malloc(sizeof(char)*20);
+    sprintf(tmp, "tmp_struct_name_%d", count);
+    return tmp;
+}
 
 bool find_func(struct ast* fir, bool is_arg) {
     char* name = fir->name;
@@ -297,6 +304,7 @@ Type StructSpecifier(struct ast* aim) {
         stack_push();
         enter_struc ++;
         struct ast* defl = tag->right->right;
+        type->u.struc_name = name;
         type->u.structure = DefList(defl);
         scratch(type);
         stack_pop();
@@ -310,10 +318,16 @@ Type StructSpecifier(struct ast* aim) {
         stack_push();
         enter_struc ++;
         struct ast* defl = tag->right->right;
+        char* tmp_name = new_invisble_struct_name(invisble_struct_count ++);
+        type->u.struc_name = tmp_name;
         type->u.structure = DefList(defl);
         scratch(type);
         stack_pop();
         enter_struc --;
+        bool is_success = stack_insert(type, tmp_name);
+        if (!is_success) {
+            printf("Error type 16 at Line %d: hh\n", aim->line_num);
+        } 
         return type;
     }
     

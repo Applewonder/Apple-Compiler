@@ -105,7 +105,11 @@ bool equiv_type(Type a, Type b) {
             return true;
         }
         if (a->kind == T_STRU) {
-            return equiv_field(a->u.structure, b->u.structure);
+            if (!strcmp(a->u.struc_name, b->u.struc_name)) {
+                return true;
+            } 
+            return false;
+            // return equiv_field(a->u.structure, b->u.structure);
         }
         if (a->kind == T_AR) {
             return equiv_arr(a, b);

@@ -29,6 +29,7 @@ struct Type_
             int size; 
         } array;
         // 结构体类型信息是一个链表
+        char* struc_name;
         FieldList structure;
         Func function;
     } u;
