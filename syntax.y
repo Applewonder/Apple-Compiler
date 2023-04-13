@@ -51,7 +51,6 @@ ExtDef:
     Specifier ExtDecList SEMI {$$ = new_node("ExtDef", 3, $1, $2, $3);}
 |   Specifier SEMI  {$$ = new_node("ExtDef", 2, $1, $2);}
 |   Specifier FunDec CompSt  {$$ = new_node("ExtDef", 3, $1, $2, $3);}
-|   Specifier FunDec SEMI {$$ = new_node("ExtDef", 3, $1, $2, $3);}
 ;
 
 ExtDecList:
